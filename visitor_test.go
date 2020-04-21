@@ -28,8 +28,7 @@ func Tet(){}
 	nodes := make([]ast.Node, 0)
 	nodes = append(nodes, astNode)
 	searcher := Searcher{
-		Root:   astNode,
-		Result: make([]ast.Node, 0)}
+		Root: astNode}
 	resultNode := searcher.FindFuncDecl("PrintTips")
 	if resultNode != nil {
 		if resultNode.Name.Name != "PrintTips" {
@@ -60,8 +59,7 @@ func Tet(){}
 	nodes := make([]ast.Node, 0)
 	nodes = append(nodes, astNode)
 	searcher := Searcher{
-		Root:   astNode,
-		Result: make([]ast.Node, 0)}
+		Root: astNode}
 	resultNode := searcher.FindValueSpec("TIPS")
 	if resultNode != nil {
 		if resultNode.Names[0].Name != "TIPS" {

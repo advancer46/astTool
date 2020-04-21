@@ -11,6 +11,9 @@ const (
 	TAIL = "tail"
 )
 
+/*
+	替换节点
+*/
 func (h *HappyAst) ReplaceNode(pos token.Pos, newNode ast.Node) error {
 	if pos == token.NoPos {
 		return errors.New("pos not exist")
@@ -31,7 +34,10 @@ func (h *HappyAst) ReplaceNode(pos token.Pos, newNode ast.Node) error {
 	return nil
 }
 
-// add stmt
+/*
+	添加语句
+	@deprecated
+*/
 func (h *HappyAst) AddStmt(bmt *ast.BlockStmt, location string, stmt ast.Stmt) {
 	if location == HEAD {
 		tempStmtList := make([]ast.Stmt, 0)
@@ -46,7 +52,25 @@ func (h *HappyAst) AddStmt(bmt *ast.BlockStmt, location string, stmt ast.Stmt) {
 	}
 }
 
-//add decl
+/*
+	添加赋值语句
+	bmt 语句块节点
+	location 在bmt.List数组中的位置
+	stmt 待放置的赋值语句节点
+*/
+func (h *HappyAst) AddAssignStmt(bmt *ast.BlockStmt, location int, stmt ast.Stmt) {
+	tempStmtList := make([]ast.Stmt, 0)
+
+	tempStmtList = append(tempStmtList, bmt.List[:location]...)
+	tempStmtList = append(tempStmtList, stmt)
+	tempStmtList = append(tempStmtList, bmt.List[location:]...)
+	bmt.List = tempStmtList
+}
+
+/*
+	添加声明
+	@deprecated
+*/
 func (h *HappyAst) AddDecl(location string, appends ...ast.Decl) {
 	if location == HEAD {
 		tempDecls := make([]ast.Decl, 0)
@@ -68,11 +92,6 @@ func (h *HappyAst) AddDecl(location string, appends ...ast.Decl) {
 		h.ast.Decls = tempDecls
 		return
 	}
-}
-
-// 将一个ast.node 替换为另一个ast.Node
-func replaceNode() {
-
 }
 
 // 在一个ast.BlockStmt的子节点b后面添加一组语句c

@@ -67,14 +67,3 @@ func (v Searcher) FindValueSpec(name string) *ast.ValueSpec {
 		return nil
 	}
 }
-
-func (v Searcher) FindValueSpec(name string) *ast.ValueSpec {
-	visitor := MyVisitor{Result: make([]ast.Node, 0), Name: name, Type: "ValueSpec"}
-
-	ast.Inspect(v.Root, visitor.Inspecter)
-	if len(visitor.Result) > 0 {
-		return visitor.Result[0].(*ast.ValueSpec)
-	} else {
-		return nil
-	}
-}

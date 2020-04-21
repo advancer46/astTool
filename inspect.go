@@ -186,7 +186,7 @@ func (h HappyAst) FindCallExprFromNode(n ast.Node, funcName string) (pos token.P
 // print HappyAst into string
 func (h HappyAst) Output() string {
 	var buf bytes.Buffer
-	printConfig := &printer.Config{Mode: printer.RawFormat, Tabwidth: 4}
+	printConfig := &printer.Config{Mode: printer.TabIndent, Tabwidth: 4}
 	err := printConfig.Fprint(&buf, h.fileSet, h.ast)
 	if err != nil {
 		panic(err)

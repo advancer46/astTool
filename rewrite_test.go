@@ -47,49 +47,6 @@ func (h *Receive) testFoo(a, b string) {
 	}
 }
 
-func TestHappyAst_FindFuncDeclNode(t *testing.T) {
-	srcode := `package miclient 
-var  ppx int
-func testFoo(){}`
-	h := ParseFromCode(srcode)
-
-	wantedFuncName := "testFoo"
-	fpos := h.FindFuncDeclNode(wantedFuncName)
-	fnode := h.FindNodeByPos(fpos)
-	gotName := (*fnode).(*ast.FuncDecl).Name.Name
-	if gotName != wantedFuncName {
-		t.Errorf("got %q;wanted %q", gotName, wantedFuncName)
-	}
-}
-
-func TestHappyAst_FindStructDeclNode(t *testing.T) {
-	srcode := `package miclient
-type Microservice struct {
-ActivityHost           string ` + "`" + `json:"activity_service_host"` + "`" + `
-}`
-	h := ParseFromCode(srcode)
-
-	pos := h.FindStructDeclNode("Microservice")
-	if pos == token.NoPos || h.Position(pos).String() != "2:6" {
-		t.Errorf("got %q;wanted %q", h.Position(pos), "2:6")
-	}
-}
-
-func TestHappyAst_FindStructFieldFromNode(t *testing.T) {
-	srcode := `package miclient
-type Microservice struct {
-ActivityHost           string ` + "`" + `json:"activity_service_host"` + "`" + `
-}`
-	h := ParseFromCode(srcode)
-
-	structPos := h.FindStructDeclNode("Microservice")
-	structNode := h.FindNodeByPos(structPos)
-	pos := h.FindStructFieldFromNode(*structNode, "ActivityHost")
-	if pos == token.NoPos || h.Position(pos).String() != "3:1" {
-		t.Errorf("got %q;wanted %q", h.Position(pos), "3:1")
-	}
-}
-
 func TestHappyAst_AddStmt(t *testing.T) {
 	srcode := `package miclient
 var  ppx int
@@ -140,5 +97,38 @@ type Microservice struct {
 	updatedCode := h.Output()
 	if updatedCode != caseCode {
 		t.Errorf("got \n%q\nwanted \n%q", updatedCode, caseCode)
+	}
+}
+
+func TestHappyAst_AddAssignStmt(t *testing.T) {
+	var input = `package miclient
+func testFoo() {}
+`
+	var expect = `package miclient
+
+func testFoo() { x := 3; _ = x }
+`
+	h := ParseFromCode(input)
+
+	lhs := make([]ast.Expr, 0)
+	lhs = append(lhs, NewIdent("x"))
+	rhs := make([]ast.Expr, 0)
+	rhs = append(rhs, NewBasicLit(token.INT, "3"))
+	assignStmt1 := NewShortAssignStmt(lhs, rhs)
+
+	lhs = make([]ast.Expr, 0)
+	lhs = append(lhs, NewIdent("_"))
+	rhs = make([]ast.Expr, 0)
+	rhs = append(rhs, NewIdent("x"))
+	assignStmt2 := NewAssignStmt(lhs, rhs)
+
+	searcher := Searcher{Root: h.ast}
+	funcNode := searcher.FindFuncDecl("testFoo")
+	h.AddAssignStmt(funcNode.Body, 0, assignStmt1)
+	h.AddAssignStmt(funcNode.Body, 1, assignStmt2)
+	newcode := h.Output()
+
+	if newcode != expect {
+		t.Errorf("\ngot:%q \nexp:%q", newcode, expect)
 	}
 }

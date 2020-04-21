@@ -46,6 +46,7 @@ func NewCallExpr(funcName string) *ast.CallExpr {
 		},
 	}
 }
+
 func NewExpStmt(x ast.Expr) *ast.ExprStmt {
 	return &ast.ExprStmt{
 		X: x,
@@ -140,6 +141,26 @@ func NewBasicLit(kind token.Token, value string) *ast.BasicLit {
 		ValuePos: token.NoPos,
 		Kind:     kind,
 		Value:    value,
+	}
+}
+
+func NewAssignStmt(lhs, rhs []ast.Expr) *ast.AssignStmt {
+
+	return &ast.AssignStmt{
+		Lhs:    lhs,
+		Rhs:    rhs,
+		TokPos: token.NoPos,
+		Tok:    token.ASSIGN,
+	}
+}
+
+func NewShortAssignStmt(lhs, rhs []ast.Expr) *ast.AssignStmt {
+
+	return &ast.AssignStmt{
+		Lhs:    lhs,
+		Rhs:    rhs,
+		TokPos: token.NoPos,
+		Tok:    token.DEFINE,
 	}
 }
 
