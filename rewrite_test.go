@@ -40,7 +40,11 @@ func (h *Receive) testFoo(a, b string) {
 	// 1, add tail decl
 	expStmt := NewExpStmt(NewCallExpr("callFoo1"))
 	blkStmt := NewBlockStmt(expStmt)
-	funcDecl := NewFuncDecl("testFoo", blkStmt)
+	recvField := NewField([]string{"h"}, "Receive", true, nil)
+	_ = recvField
+	field := NewField([]string{"a", "b"}, "string", false, nil)
+	commentgroup := NewCommentGroup(NewComment("// this is comment"))
+	funcDecl := NewFuncDecl("testFoo", blkStmt, NewFieldList(recvField), NewFieldList(field), commentgroup)
 	h.AddDecl(TAIL, funcDecl)
 	if h.Output() != wantedCodes[1] {
 		t.Errorf("case %d got %q;wanted %q", 1, h.Output(), wantedCodes[1])
@@ -130,5 +134,48 @@ func testFoo() { x := 3; _ = x }
 
 	if newcode != expect {
 		t.Errorf("\ngot:%q \nexp:%q", newcode, expect)
+	}
+}
+
+func TestHappyAst_AddFundDecl(t *testing.T) {
+	var input = `package miclient
+func testFoo() {}
+`
+	var expect = `package miclient
+
+func testFoo() {}
+
+// this is comment
+func (h *Receive) testFoo1(a, b string) {
+	callFoo()
+}
+
+// this is comment
+func (h *Receive) testFoo2(a, b string) {
+	callFoo()
+}
+`
+	h := ParseFromCode(input)
+
+	// 1, append decl 1
+	expStmt := NewExpStmt(NewCallExpr("callFoo"))
+	blkStmt := NewBlockStmt(expStmt)
+	recvField := NewField([]string{"h"}, "Receive", true, nil)
+	field := NewField([]string{"a", "b"}, "string", false, nil)
+	commentgroup := NewCommentGroup(NewComment("// this is comment"))
+	funcDecl1 := NewFuncDecl("testFoo1", blkStmt, NewFieldList(recvField), NewFieldList(field), commentgroup)
+	h.AddFundDecl(1, funcDecl1)
+
+	// 1, append decl 2
+	expStmt = NewExpStmt(NewCallExpr("callFoo"))
+	blkStmt = NewBlockStmt(expStmt)
+	recvField = NewField([]string{"h"}, "Receive", true, nil)
+	field = NewField([]string{"a", "b"}, "string", false, nil)
+	commentgroup = NewCommentGroup(NewComment("// this is comment"))
+	funcDecl2 := NewFuncDecl("testFoo2", blkStmt, NewFieldList(recvField), NewFieldList(field), commentgroup)
+	h.AddFundDecl(2, funcDecl2)
+
+	if h.Output() != expect {
+		t.Errorf("\ngot: %q \nexp: %q", h.Output(), expect)
 	}
 }

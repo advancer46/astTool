@@ -109,19 +109,20 @@ func NewFieldList(fields ...*ast.Field) *ast.FieldList {
 }
 
 //new funcDecl
-func NewFuncDecl(funcName string, blkStmt *ast.BlockStmt) *ast.FuncDecl {
-	recvField := NewField([]string{"h"}, "Receive", true, nil)
-	_ = recvField
-	field := NewField([]string{"a", "b"}, "string", false, nil)
+func NewFuncDecl(funcName string, blkStmt *ast.BlockStmt, recv, params *ast.FieldList, commentgroup *ast.CommentGroup) *ast.FuncDecl {
+	//recvField := NewField([]string{"h"}, "Receive", true, nil)
+	//_ = recvField
+	//field := NewField([]string{"a", "b"}, "string", false, nil)
+	//commentgroup := NewCommentGroup(NewComment("// this is comment"))
 	return &ast.FuncDecl{
 		Name: &ast.Ident{Name: funcName},
 		Body: blkStmt,
 		Type: &ast.FuncType{Func: token.NoPos,
-			Params:  NewFieldList(field),
+			Params:  params,
 			Results: nil,
 		},
-		Recv: NewFieldList(recvField),
-		Doc:  NewCommentGroup(NewComment("// this is comment")),
+		Recv: recv,
+		Doc:  commentgroup,
 	}
 }
 
@@ -170,5 +171,13 @@ func NewImportSpec(name string, path string) *ast.ImportSpec {
 		Doc:  nil,
 		Path: NewBasicLit(token.STRING, path),
 		Name: NewIdent(name),
+	}
+}
+
+func NewInterface(fieldList *ast.FieldList) *ast.InterfaceType {
+	return &ast.InterfaceType{
+		Interface:  token.NoPos,
+		Methods:    fieldList,
+		Incomplete: false,
 	}
 }
