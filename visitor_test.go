@@ -108,3 +108,15 @@ func Tet(){}
 		}
 	}
 }
+
+func TestSearcher_FindTypeDecl(t *testing.T) {
+	var input = `package miclient
+type s struct{
+ 	a int32
+}
+`
+	var expect = `type s struct{
+ 	a int32
+}
+`
+}
