@@ -13,6 +13,19 @@ func NewIdent(name string) *ast.Ident {
 	}
 }
 
+/*
+type svc interface {
+  UserGet()
+}
+*/
+func NewFuncType(name string, params, results *ast.FieldList) *ast.FuncType {
+	return &ast.FuncType{
+		Results: results,
+		Params:  params,
+		Func:    token.NoPos,
+	}
+}
+
 func NewComment(text string) *ast.Comment {
 	return &ast.Comment{
 		Slash: token.NoPos,
@@ -86,8 +99,7 @@ func NewField(fieldNames []string, typeName string, isStartExpr bool, tag *ast.B
 	ret := &ast.Field{
 		Doc:   nil,
 		Names: names,
-		//Tag:NewBasicLit(token.STRING,"`json:\"brandcustomer_service_host\"`"),
-		Tag: tag,
+		Tag:   tag,
 	}
 	if isStartExpr {
 		ret.Type = NewStarExp(NewIdent(typeName))
@@ -97,6 +109,21 @@ func NewField(fieldNames []string, typeName string, isStartExpr bool, tag *ast.B
 
 	return ret
 
+}
+
+func NewFieldOfFuncType(fieldNames []string, functype *ast.FuncType, tag *ast.BasicLit) *ast.Field {
+	names := make([]*ast.Ident, 0)
+	for _, v := range fieldNames {
+		names = append(names, NewIdent(v))
+	}
+	ret := &ast.Field{
+		Doc:   nil,
+		Names: names,
+		Type:  functype,
+		Tag:   tag,
+	}
+
+	return ret
 }
 func NewFieldList(fields ...*ast.Field) *ast.FieldList {
 	fieldList := make([]*ast.Field, 0)

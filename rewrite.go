@@ -108,27 +108,23 @@ func (h *HappyAst) AddDecl(location string, appends ...ast.Decl) {
 	}
 }
 
-// 在一个ast.BlockStmt的子节点b后面添加一组语句c
-func appendStmt(location string, a *ast.BlockStmt, b ast.Node, c ...ast.Stmt) {
-	if location == HEAD {
-		//tempDecls := make([]ast.Decl,0)
-		//for _,v := range c{
-		//	tempDecls = append(tempDecls,v)
-		//}
-		//for _,val := range h.ast.Decls{
-		//	tempDecls = append(tempDecls,val)
-		//}
-		//h.ast.Decls = tempDecls
-		//return
-	}
-	if location == TAIL {
-		tempStmtList := a.List
-		tempStmtList = append(tempStmtList, c...)
-		a.List = tempStmtList
-	}
+/*
+type svc interface {
+  UserGet()
 }
 
-// 在一个ast.Node的子节点b后面添加一组声明c
-func appendDecl(location string, a *ast.Node, b ast.Node, c ...ast.Decl) {
+=>
 
+type svc interface {
+  UserGet()
+  RoleGet()
+}
+*/
+func (h *HappyAst) AddFieldOfFuncType(bmt *ast.FieldList, location int, field *ast.Field) {
+	tempFieldList := make([]*ast.Field, 0)
+
+	tempFieldList = append(tempFieldList, bmt.List[:location]...)
+	tempFieldList = append(tempFieldList, field)
+	tempFieldList = append(tempFieldList, bmt.List[location:]...)
+	bmt.List = tempFieldList
 }
