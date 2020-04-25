@@ -41,7 +41,7 @@ func (v *MyVisitor) Inspecter(node ast.Node) bool {
 			for _, item := range x.Specs {
 				switch y := item.(type) {
 				case *ast.TypeSpec:
-					if v.Name == y.Name.Name && v.Type == "FuncDecl" {
+					if v.Name == y.Name.Name && v.Type == "GenDecl" {
 						v.Result = append(v.Result, x)
 						return false
 					}
@@ -55,7 +55,7 @@ func (v *MyVisitor) Inspecter(node ast.Node) bool {
 				switch y := item.(type) {
 				case *ast.ValueSpec:
 					for _, it := range y.Names {
-						if v.Name == it.Name && v.Type == "FuncDecl" {
+						if v.Name == it.Name && v.Type == "GenDecl" {
 							v.Result = append(v.Result, x)
 							return false
 						}

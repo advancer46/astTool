@@ -199,6 +199,22 @@ func (h HappyAst) Output() string {
 	return string(out)
 }
 
+// print HappyAst into string
+func (h HappyAst) OutputNode(node interface{}) string {
+	var buf bytes.Buffer
+	printConfig := &printer.Config{Mode: printer.TabIndent, Tabwidth: 4}
+	err := printConfig.Fprint(&buf, h.fileSet, node)
+	if err != nil {
+		panic(err)
+	}
+	out := buf.Bytes()
+	out, err = format.Source(out)
+	if err != nil {
+		panic(err)
+	}
+	return string(out)
+}
+
 //print
 func (h HappyAst) Print() {
 	ast.Fprint(os.Stdout, h.fileSet, h.ast, nil)
