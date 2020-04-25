@@ -180,7 +180,7 @@ func (h *Receive) testFoo2(a, b string) {
 	}
 }
 
-func TestHappyAst_AddFieldList(t *testing.T) {
+func TestHappyAst_AddFieldOfFuncType(t *testing.T) {
 	var input = `package miclient
 type svc interface {
 				UserGet()
