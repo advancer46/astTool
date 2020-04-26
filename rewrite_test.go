@@ -179,3 +179,42 @@ func (h *Receive) testFoo2(a, b string) {
 		t.Errorf("\ngot: %q \nexp: %q", h.Output(), expect)
 	}
 }
+
+func TestHappyAst_AddFieldOfFuncType(t *testing.T) {
+	var input = `package miclient
+type svc interface {
+				UserGet()
+}`
+	var expect = `package miclient
+
+type svc interface {
+	UserGet()
+	RoleGet()
+}
+`
+
+	_, _ = input, expect
+
+	h := ParseFromCode(input)
+
+	//search
+	searcher := Searcher{Root: h.ast}
+	resultNode := searcher.FindTypeDecl("svc")
+	if resultNode == nil {
+		t.Logf("can not find typeDecl(%s)", "svc")
+	}
+	typeSpec := resultNode.Specs[0].(*ast.TypeSpec)
+	interfaceType := typeSpec.Type.(*ast.InterfaceType)
+	fieldList := interfaceType.Methods
+	_ = fieldList
+
+	// add
+	newfunctype := NewFuncType("", nil, nil)
+	newField := NewFieldOfFuncType([]string{"RoleGet"}, newfunctype, nil)
+	h.AddFieldOfFuncType(fieldList, 1, newField)
+
+	got := h.Output()
+	if got != expect {
+		t.Errorf("\n got:%q, \n exp:%q", got, expect)
+	}
+}

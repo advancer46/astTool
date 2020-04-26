@@ -34,9 +34,43 @@ func (v *MyVisitor) Inspector(node ast.Node) bool {
 				return false
 			}
 		}
+
 	case *ast.GenDecl:
+		switch x.Tok.String() {
+		case "type":
+			for _, item := range x.Specs {
+				switch y := item.(type) {
+				case *ast.TypeSpec:
+					if v.Name == y.Name.Name && v.Type == "GenDecl" {
+						v.Result = append(v.Result, x)
+						return false
+					}
+				default:
+
+				}
+
+			}
+		case "var":
+			for _, item := range x.Specs {
+				switch y := item.(type) {
+				case *ast.ValueSpec:
+					for _, it := range y.Names {
+						if v.Name == it.Name && v.Type == "GenDecl" {
+							v.Result = append(v.Result, x)
+							return false
+						}
+					}
+				default:
+
+				}
+			}
+
+		}
+
+	default:
 
 	}
+
 	return true
 }
 
@@ -70,6 +104,14 @@ func (v Searcher) FindValueSpecGlobal(name string) *ast.ValueSpec {
 	}
 }
 
+/*
+示例:
+package miclient
+type s struct{
+ 	a int32
+}
+type y struct{}
+*/
 func (v Searcher) FindTypeDecl(name string) *ast.GenDecl {
 	visitor := MyVisitor{Result: make([]ast.Node, 0), Name: name, Type: "GenDecl"}
 
@@ -79,5 +121,4 @@ func (v Searcher) FindTypeDecl(name string) *ast.GenDecl {
 	} else {
 		return nil
 	}
-
 }

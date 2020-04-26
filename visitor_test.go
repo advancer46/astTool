@@ -121,4 +121,58 @@ type PrivilegeSvcService interface {
 }
 `
 
+	_, _ = input, expect
+
+}
+
+func TestSearcher_FindTypeDecl_case1(t *testing.T) {
+	var input = `package miclient
+type s struct{
+ 	a int32
+}
+`
+	var expect = `type s struct {
+	a int32
+}`
+
+	h := ParseFromCode(input)
+
+	searcher := Searcher{Root: h.ast}
+
+	resultNode := searcher.FindTypeDecl("s")
+	if resultNode != nil {
+		got := h.OutputNode(resultNode)
+
+		if got != expect {
+			t.Errorf("\n got %q, \n exp %q", got, expect)
+		}
+	} else {
+		t.Logf("got nil,expect %q", expect)
+	}
+}
+
+func TestSearcher_FindTypeDecl_case2(t *testing.T) {
+	var input = `package miclient
+type s interface{
+ 	UserGet()
+}
+`
+	var expect = `type s interface {
+	UserGet()
+}`
+
+	h := ParseFromCode(input)
+
+	searcher := Searcher{Root: h.ast}
+
+	resultNode := searcher.FindTypeDecl("s")
+	if resultNode != nil {
+		got := h.OutputNode(resultNode)
+
+		if got != expect {
+			t.Errorf("\n got %q, \n exp %q", got, expect)
+		}
+	} else {
+		t.Logf("got nil,expect %q", expect)
+	}
 }
