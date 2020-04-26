@@ -18,7 +18,7 @@ func (h *HappyAst) ReplaceNode(pos token.Pos, newNode ast.Node) error {
 	if pos == token.NoPos {
 		return errors.New("pos not exist")
 	}
-	ast.Inspect(h.ast, func(node ast.Node) bool {
+	ast.Inspect(h.Ast, func(node ast.Node) bool {
 		switch node.(type) {
 		case ast.Node:
 			if !node.Pos().IsValid() {
@@ -75,10 +75,10 @@ func (h *HappyAst) AddAssignStmt(bmt *ast.BlockStmt, location int, stmt ast.Stmt
 func (h *HappyAst) AppendFundDecl(location int, decl ast.Decl) {
 	tempDeclList := make([]ast.Decl, 0)
 
-	tempDeclList = append(tempDeclList, h.ast.Decls[:location]...)
+	tempDeclList = append(tempDeclList, h.Ast.Decls[:location]...)
 	tempDeclList = append(tempDeclList, decl)
-	tempDeclList = append(tempDeclList, h.ast.Decls[location:]...)
-	h.ast.Decls = tempDeclList
+	tempDeclList = append(tempDeclList, h.Ast.Decls[location:]...)
+	h.Ast.Decls = tempDeclList
 }
 
 /*
@@ -91,19 +91,19 @@ func (h *HappyAst) AddDecl(location string, appends ...ast.Decl) {
 		for _, v := range appends {
 			tempDecls = append(tempDecls, v)
 		}
-		for _, val := range h.ast.Decls {
+		for _, val := range h.Ast.Decls {
 			tempDecls = append(tempDecls, val)
 		}
-		h.ast.Decls = tempDecls
+		h.Ast.Decls = tempDecls
 		return
 	}
 	if location == TAIL {
 		tempDecls := make([]ast.Decl, 0)
-		tempDecls = h.ast.Decls
+		tempDecls = h.Ast.Decls
 		for _, v := range appends {
 			tempDecls = append(tempDecls, v)
 		}
-		h.ast.Decls = tempDecls
+		h.Ast.Decls = tempDecls
 		return
 	}
 }

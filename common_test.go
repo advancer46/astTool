@@ -19,7 +19,7 @@ type svc interface {
 	_, _ = input, expect
 	h := ParseFromCode(input)
 	//search
-	searcher := Searcher{Root: h.ast}
+	searcher := Searcher{Root: h.Ast}
 	resultNode := searcher.FindTypeDecl("svc")
 	if resultNode == nil {
 		t.Logf("can not find typeDecl(%s)", "svc")

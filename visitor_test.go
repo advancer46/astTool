@@ -109,22 +109,6 @@ func Tet(){}
 	}
 }
 
-func TestSearcher_FindTypeDecl(t *testing.T) {
-	var input = `package miclient
-
-type PrivilegeSvcService interface {
-	PrivilegeFetch(ctx context.Context, reqproto *privilegeproto.PrivilegeFetchReqProto) (*privilegeproto.PrivilegeFetchRespProto, error)
-}
-`
-	var expect = `PrivilegeSvcService interface {
-	PrivilegeFetch(ctx context.Context, reqproto *privilegeproto.PrivilegeFetchReqProto) (*privilegeproto.PrivilegeFetchRespProto, error)
-}
-`
-
-	_, _ = input, expect
-
-}
-
 func TestSearcher_FindTypeDecl_case1(t *testing.T) {
 	var input = `package miclient
 type s struct{
@@ -137,7 +121,7 @@ type s struct{
 
 	h := ParseFromCode(input)
 
-	searcher := Searcher{Root: h.ast}
+	searcher := Searcher{Root: h.Ast}
 
 	resultNode := searcher.FindTypeDecl("s")
 	if resultNode != nil {
@@ -163,7 +147,7 @@ type s interface{
 
 	h := ParseFromCode(input)
 
-	searcher := Searcher{Root: h.ast}
+	searcher := Searcher{Root: h.Ast}
 
 	resultNode := searcher.FindTypeDecl("s")
 	if resultNode != nil {

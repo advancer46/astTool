@@ -1,11 +1,10 @@
-
 package astTool
 
 import (
-	"go/token"
+	"fmt"
 	"go/ast"
 	"go/parser"
-	"fmt"
+	"go/token"
 )
 
 const (
@@ -21,14 +20,13 @@ const (
 	KIND_STRING = "STRING" //basiclit
 )
 
-type HappyAst struct{
-	fileSet *token.FileSet		//file info
-	ast *ast.File		//collection of ast.Node
-	happyAst *ast.File		//collection of updated ast.Node
+type HappyAst struct {
+	FileSet *token.FileSet //file info
+	Ast     *ast.File      //collection of ast.Node
+	//HappyAst *ast.File		//collection of updated ast.Node
 }
 
-
-func DemoInspect(codeFile string){
+func DemoInspect(codeFile string) {
 	srcode := `package miclient
 
 var (
@@ -41,7 +39,7 @@ func RegisterMicroService() {
 }
 `
 	h := ParseFromCode(srcode)
-	if codeFile != ""{
+	if codeFile != "" {
 		h = ParseFromFile(codeFile)
 	}
 
@@ -52,54 +50,52 @@ func RegisterMicroService() {
 	fmt.Println(h.Position(pos))
 }
 
-func DemoRewrite(codeFile string){
+func DemoRewrite(codeFile string) {
 	srcode := `package miclient
 type Microservice struct {
-ActivityHost           string `+"`"+`json:"activity_service_host"`+"`"+`
+ActivityHost           string ` + "`" + `json:"activity_service_host"` + "`" + `
 }`
 	h := ParseFromCode(srcode)
-	if codeFile != ""{
+	if codeFile != "" {
 		h = ParseFromFile(codeFile)
 	}
-	tag := NewBasicLit(token.STRING,"`json:\"brandcustomer_service_host\"`")
-	field := NewField([]string{"BrandHost"},"string",false,tag)
+	tag := NewBasicLit(token.STRING, "`json:\"brandcustomer_service_host\"`")
+	field := NewField([]string{"BrandHost"}, "string", false, tag)
 	gpos := h.FindStructDeclNode("Microservice")
 	gnode := h.FindNodeByPos(gpos)
 	structNode := (*gnode).(*ast.TypeSpec).Type.(*ast.StructType)
-	structNode.Fields.List = append(structNode.Fields.List,field)
-	h.ReplaceNode(gpos,*gnode)
+	structNode.Fields.List = append(structNode.Fields.List, field)
+	h.ReplaceNode(gpos, *gnode)
 	fmt.Println(h.Output())
 }
 
-func ParseFromFile(codeFile string)(*HappyAst){
+func ParseFromFile(codeFile string) *HappyAst {
 	fset = token.NewFileSet()
 	//astNodes, err := parser.ParseFile(fset, codeFile, nil,parser.ParseComments)
-	astNodes, err := parser.ParseFile(fset, codeFile, nil,parser.ParseComments)
+	astNodes, err := parser.ParseFile(fset, codeFile, nil, parser.ParseComments)
 	if err != nil {
 		panic(err)
 	}
 	h := &HappyAst{
-		fileSet: fset,
-		ast: astNodes,
+		FileSet: fset,
+		Ast:     astNodes,
 	}
 	return h
 }
 
-func ParseFromCode(srccode string)(*HappyAst){
+func ParseFromCode(srccode string) *HappyAst {
 	fset = token.NewFileSet()
 	//astNodes, err := parser.ParseFile(fset, codeFile, nil,parser.ParseComments)
-	astNodes, err := parser.ParseFile(fset, "", srccode,parser.ParseComments)
+	astNodes, err := parser.ParseFile(fset, "", srccode, parser.ParseComments)
 	if err != nil {
 		panic(err)
 	}
 	h := &HappyAst{
-		fileSet: fset,
-		ast: astNodes,
+		FileSet: fset,
+		Ast:     astNodes,
 	}
 	return h
 }
-
-
 
 // 根据参数查找节点位置
 // name:　节点名称,不支持模糊查询
@@ -108,7 +104,7 @@ func ParseFromCode(srccode string)(*HappyAst){
 // lineStart:　位置范围查询的开始,-1表示忽略
 // lineEnd:　位置返回查询的截止,-1表示忽略
 func (h HappyAst) PosOfNode(name string, tokenType string, tokenKind string, lineStart int, lineEnd int) (pos []token.Pos) {
-	ast.Inspect(h.ast, func(node ast.Node) bool {
+	ast.Inspect(h.Ast, func(node ast.Node) bool {
 
 		xname := ""
 		xtype := ""
@@ -158,7 +154,7 @@ func (h HappyAst) NodeByPos(pos token.Pos) (ret ast.Node) {
 	if pos == token.NoPos {
 		return nil
 	}
-	ast.Inspect(h.ast, func(node ast.Node) bool {
+	ast.Inspect(h.Ast, func(node ast.Node) bool {
 
 		switch x := node.(type) {
 		case *ast.Ident:
@@ -576,4 +572,3 @@ func (h HappyAst) NodeByPos(pos token.Pos) (ret ast.Node) {
 	})
 	return ret
 }
-

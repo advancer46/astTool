@@ -126,7 +126,7 @@ func testFoo() { x := 3; _ = x }
 	rhs = append(rhs, NewIdent("x"))
 	assignStmt2 := NewAssignStmt(lhs, rhs)
 
-	searcher := Searcher{Root: h.ast}
+	searcher := Searcher{Root: h.Ast}
 	funcNode := searcher.FindFuncDeclGlobal("testFoo")
 	h.AddAssignStmt(funcNode.Body, 0, assignStmt1)
 	h.AddAssignStmt(funcNode.Body, 1, assignStmt2)
@@ -198,7 +198,7 @@ type svc interface {
 	h := ParseFromCode(input)
 
 	//search
-	searcher := Searcher{Root: h.ast}
+	searcher := Searcher{Root: h.Ast}
 	resultNode := searcher.FindTypeDecl("svc")
 	if resultNode == nil {
 		t.Logf("can not find typeDecl(%s)", "svc")

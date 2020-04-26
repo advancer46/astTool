@@ -25,14 +25,14 @@ func init() {
 }
 
 func (h HappyAst) Position(tp token.Pos) token.Position {
-	return h.fileSet.PositionFor(tp, true)
+	return h.FileSet.PositionFor(tp, true)
 }
 
 func (h HappyAst) FindNodeByPos(pos token.Pos) (ret *ast.Node) {
 	if pos == token.NoPos {
 		return nil
 	}
-	ast.Inspect(h.ast, func(node ast.Node) bool {
+	ast.Inspect(h.Ast, func(node ast.Node) bool {
 		switch node.(type) {
 		case ast.Node:
 			if !node.Pos().IsValid() {
@@ -51,7 +51,7 @@ func (h HappyAst) FindNodeByPos(pos token.Pos) (ret *ast.Node) {
 // find function by name,
 // return token.Pos
 func (h HappyAst) FindIdent(ident string) (pos []token.Pos) {
-	ast.Inspect(h.ast, func(node ast.Node) bool {
+	ast.Inspect(h.Ast, func(node ast.Node) bool {
 		switch x := node.(type) {
 		case *ast.Ident:
 			if x.Name == ident {
@@ -67,7 +67,7 @@ func (h HappyAst) FindIdent(ident string) (pos []token.Pos) {
 // find value spec node by name,
 // return token.Pos
 func (h HappyAst) FindValueSpec(ident string) (pos []token.Pos) {
-	ast.Inspect(h.ast, func(node ast.Node) bool {
+	ast.Inspect(h.Ast, func(node ast.Node) bool {
 		switch x := node.(type) {
 		case *ast.ValueSpec:
 			for _, v := range x.Names {
@@ -103,7 +103,7 @@ func (h HappyAst) FindValueSpecFromNode(n ast.Node, ident string) (pos []token.P
 // find function by name,
 // return token.Pos
 func (h HappyAst) FindFuncDeclNode(wantName string) (pos token.Pos) {
-	ast.Inspect(h.ast, func(node ast.Node) bool {
+	ast.Inspect(h.Ast, func(node ast.Node) bool {
 		switch x := node.(type) {
 		case *ast.FuncDecl:
 			if x.Name.Name == wantName {
@@ -120,7 +120,7 @@ func (h HappyAst) FindFuncDeclNode(wantName string) (pos token.Pos) {
 // find Struct Decl by name,
 // return token.Pos
 func (h HappyAst) FindStructDeclNode(wantName string) (pos token.Pos) {
-	ast.Inspect(h.ast, func(node ast.Node) bool {
+	ast.Inspect(h.Ast, func(node ast.Node) bool {
 		switch g := node.(type) {
 		case *ast.GenDecl:
 			if g.Tok == token.TYPE {
@@ -187,7 +187,7 @@ func (h HappyAst) FindCallExprFromNode(n ast.Node, funcName string) (pos token.P
 func (h HappyAst) Output() string {
 	var buf bytes.Buffer
 	printConfig := &printer.Config{Mode: printer.TabIndent, Tabwidth: 4}
-	err := printConfig.Fprint(&buf, h.fileSet, h.ast)
+	err := printConfig.Fprint(&buf, h.FileSet, h.Ast)
 	if err != nil {
 		panic(err)
 	}
@@ -203,7 +203,7 @@ func (h HappyAst) Output() string {
 func (h HappyAst) OutputNode(node interface{}) string {
 	var buf bytes.Buffer
 	printConfig := &printer.Config{Mode: printer.TabIndent, Tabwidth: 4}
-	err := printConfig.Fprint(&buf, h.fileSet, node)
+	err := printConfig.Fprint(&buf, h.FileSet, node)
 	if err != nil {
 		panic(err)
 	}
@@ -217,13 +217,13 @@ func (h HappyAst) OutputNode(node interface{}) string {
 
 //print
 func (h HappyAst) Print() {
-	ast.Fprint(os.Stdout, h.fileSet, h.ast, nil)
+	ast.Fprint(os.Stdout, h.FileSet, h.Ast, nil)
 }
 
 //visitor
 func (h HappyAst) Visit() {
 	//visitor
-	ast.Walk(HappyVisitor(printNode), h.ast)
+	ast.Walk(HappyVisitor(printNode), h.Ast)
 }
 
 // node Visitor
