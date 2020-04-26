@@ -29,7 +29,7 @@ func Tet(){}
 	nodes = append(nodes, astNode)
 	searcher := Searcher{
 		Root: astNode}
-	resultNode := searcher.FindFuncDecl("PrintTips")
+	resultNode := searcher.FindFuncDeclGlobal("PrintTips")
 	if resultNode != nil {
 		if resultNode.Name.Name != "PrintTips" {
 			t.Errorf("got %s,expect %s", resultNode.Name.Name, "PrintTips")
@@ -60,7 +60,7 @@ func Tet(){}
 	nodes = append(nodes, astNode)
 	searcher := Searcher{
 		Root: astNode}
-	resultNode := searcher.FindValueSpec("TIPS")
+	resultNode := searcher.FindValueSpecGlobal("TIPS")
 	if resultNode != nil {
 		if resultNode.Names[0].Name != "TIPS" {
 			t.Errorf("got %s,expect %s", resultNode.Names[0].Name, "TIPS")
@@ -93,18 +93,32 @@ func Tet(){}
 	nodes := make([]ast.Node, 0)
 	nodes = append(nodes, astNode)
 	searcher := Searcher{Root: astNode}
-	resultNode := searcher.FindFuncDecl("PrintTips")
+	resultNode := searcher.FindFuncDeclGlobal("PrintTips")
 	if resultNode != nil {
 		if resultNode.Name.Name != "PrintTips" {
 			t.Errorf("got %s,expect %s", resultNode.Name.Name, "PrintTips")
 		}
 
 		searcher2 := Searcher{Root: resultNode}
-		resultNode2 := searcher2.FindValueSpec("y")
+		resultNode2 := searcher2.FindValueSpecGlobal("y")
 		if resultNode2 != nil {
 			if resultNode2.Names[0].Name != "y" {
 				t.Errorf("got %s,expect %s", resultNode2.Names[0].Name, "y")
 			}
 		}
 	}
+}
+
+func TestSearcher_FindTypeDecl(t *testing.T) {
+	var input = `package miclient
+
+type PrivilegeSvcService interface {
+	PrivilegeFetch(ctx context.Context, reqproto *privilegeproto.PrivilegeFetchReqProto) (*privilegeproto.PrivilegeFetchRespProto, error)
+}
+`
+	var expect = `PrivilegeSvcService interface {
+	PrivilegeFetch(ctx context.Context, reqproto *privilegeproto.PrivilegeFetchReqProto) (*privilegeproto.PrivilegeFetchRespProto, error)
+}
+`
+
 }

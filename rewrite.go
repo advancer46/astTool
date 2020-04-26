@@ -72,7 +72,7 @@ func (h *HappyAst) AddAssignStmt(bmt *ast.BlockStmt, location int, stmt ast.Stmt
 	location 在root.Decls数组中的位置
 	stmt 待放置的赋值语句节点
 */
-func (h *HappyAst) AddFundDecl(location int, decl ast.Decl) {
+func (h *HappyAst) AppendFundDecl(location int, decl ast.Decl) {
 	tempDeclList := make([]ast.Decl, 0)
 
 	tempDeclList = append(tempDeclList, h.ast.Decls[:location]...)

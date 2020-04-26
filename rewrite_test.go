@@ -127,7 +127,7 @@ func testFoo() { x := 3; _ = x }
 	assignStmt2 := NewAssignStmt(lhs, rhs)
 
 	searcher := Searcher{Root: h.ast}
-	funcNode := searcher.FindFuncDecl("testFoo")
+	funcNode := searcher.FindFuncDeclGlobal("testFoo")
 	h.AddAssignStmt(funcNode.Body, 0, assignStmt1)
 	h.AddAssignStmt(funcNode.Body, 1, assignStmt2)
 	newcode := h.Output()
@@ -164,7 +164,7 @@ func (h *Receive) testFoo2(a, b string) {
 	field := NewField([]string{"a", "b"}, "string", false, nil)
 	commentgroup := NewCommentGroup(NewComment("// this is comment"))
 	funcDecl1 := NewFuncDecl("testFoo1", blkStmt, NewFieldList(recvField), NewFieldList(field), commentgroup)
-	h.AddFundDecl(1, funcDecl1)
+	h.AppendFundDecl(1, funcDecl1)
 
 	// 1, append decl 2
 	expStmt = NewExpStmt(NewCallExpr("callFoo"))
@@ -173,7 +173,7 @@ func (h *Receive) testFoo2(a, b string) {
 	field = NewField([]string{"a", "b"}, "string", false, nil)
 	commentgroup = NewCommentGroup(NewComment("// this is comment"))
 	funcDecl2 := NewFuncDecl("testFoo2", blkStmt, NewFieldList(recvField), NewFieldList(field), commentgroup)
-	h.AddFundDecl(2, funcDecl2)
+	h.AppendFundDecl(2, funcDecl2)
 
 	if h.Output() != expect {
 		t.Errorf("\ngot: %q \nexp: %q", h.Output(), expect)

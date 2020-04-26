@@ -20,7 +20,7 @@ func (v MyVisitor) Visit(node ast.Node) ast.Visitor {
 	return v
 }
 
-func (v *MyVisitor) Inspecter(node ast.Node) bool {
+func (v *MyVisitor) Inspector(node ast.Node) bool {
 	switch x := node.(type) {
 	case *ast.FuncDecl:
 		if v.Name == x.Name.Name && v.Type == "FuncDecl" {
@@ -34,6 +34,8 @@ func (v *MyVisitor) Inspecter(node ast.Node) bool {
 				return false
 			}
 		}
+	case *ast.GenDecl:
+
 	}
 	return true
 }
@@ -46,10 +48,10 @@ type Searcher struct {
 	Root ast.Node
 }
 
-func (v Searcher) FindFuncDecl(name string) *ast.FuncDecl {
+func (v Searcher) FindFuncDeclGlobal(name string) *ast.FuncDecl {
 	visitor := MyVisitor{Result: make([]ast.Node, 0), Name: name, Type: "FuncDecl"}
 
-	ast.Inspect(v.Root, visitor.Inspecter)
+	ast.Inspect(v.Root, visitor.Inspector)
 	if len(visitor.Result) > 0 {
 		return visitor.Result[0].(*ast.FuncDecl)
 	} else {
@@ -57,13 +59,25 @@ func (v Searcher) FindFuncDecl(name string) *ast.FuncDecl {
 	}
 }
 
-func (v Searcher) FindValueSpec(name string) *ast.ValueSpec {
+func (v Searcher) FindValueSpecGlobal(name string) *ast.ValueSpec {
 	visitor := MyVisitor{Result: make([]ast.Node, 0), Name: name, Type: "ValueSpec"}
 
-	ast.Inspect(v.Root, visitor.Inspecter)
+	ast.Inspect(v.Root, visitor.Inspector)
 	if len(visitor.Result) > 0 {
 		return visitor.Result[0].(*ast.ValueSpec)
 	} else {
 		return nil
 	}
+}
+
+func (v Searcher) FindTypeDecl(name string) *ast.GenDecl {
+	visitor := MyVisitor{Result: make([]ast.Node, 0), Name: name, Type: "GenDecl"}
+
+	ast.Inspect(v.Root, visitor.Inspector)
+	if len(visitor.Result) > 0 {
+		return visitor.Result[0].(*ast.GenDecl)
+	} else {
+		return nil
+	}
+
 }
