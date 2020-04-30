@@ -160,3 +160,28 @@ type s interface{
 		t.Logf("got nil,expect %q", expect)
 	}
 }
+
+func TestSearcher_FindField(t *testing.T) {
+	var input = `package service
+
+type PrivilegeSvcService interface {
+	PrivilegeFetch()
+}
+`
+	var expect = `PrivilegeFetch`
+
+	h := ParseFromCode(input)
+
+	searcher := Searcher{Root: h.Ast}
+
+	resultNode := searcher.FindField("PrivilegeFetch")
+	if resultNode != nil {
+		//got := h.OutputNode(resultNode)
+
+		if resultNode.Names[0].Name != expect {
+			t.Errorf("\n got %q, \n exp %q", resultNode.Names[0].Name, expect)
+		}
+	} else {
+		t.Logf("got nil,expect %q", expect)
+	}
+}

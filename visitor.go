@@ -34,6 +34,13 @@ func (v *MyVisitor) Inspector(node ast.Node) bool {
 				return false
 			}
 		}
+	case *ast.Field:
+		for _, item := range x.Names {
+			if v.Name == item.Name && v.Type == "Field" {
+				v.Result = append(v.Result, x)
+				return false
+			}
+		}
 
 	case *ast.GenDecl:
 		switch x.Tok.String() {
@@ -110,7 +117,10 @@ package miclient
 type s struct{
  	a int32
 }
-type y struct{}
+====>
+type s struct{
+ 	a int32
+}
 */
 func (v Searcher) FindTypeDecl(name string) *ast.GenDecl {
 	visitor := MyVisitor{Result: make([]ast.Node, 0), Name: name, Type: "GenDecl"}
@@ -118,6 +128,27 @@ func (v Searcher) FindTypeDecl(name string) *ast.GenDecl {
 	ast.Inspect(v.Root, visitor.Inspector)
 	if len(visitor.Result) > 0 {
 		return visitor.Result[0].(*ast.GenDecl)
+	} else {
+		return nil
+	}
+}
+
+/*
+示例:
+package miclient
+type s struct{
+ 	a int32
+}
+
+=====>
+a int32
+*/
+func (v Searcher) FindField(name string) *ast.Field {
+	visitor := MyVisitor{Result: make([]ast.Node, 0), Name: name, Type: "Field"}
+
+	ast.Inspect(v.Root, visitor.Inspector)
+	if len(visitor.Result) > 0 {
+		return visitor.Result[0].(*ast.Field)
 	} else {
 		return nil
 	}
