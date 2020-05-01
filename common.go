@@ -18,7 +18,7 @@ type svc interface {
   UserGet()
 }
 */
-func NewFuncType(name string, params, results *ast.FieldList) *ast.FuncType {
+func NewFuncType(params, results *ast.FieldList) *ast.FuncType {
 	return &ast.FuncType{
 		Results: results,
 		Params:  params,
@@ -77,11 +77,10 @@ func NewBlockStmt(expStmt ...*ast.ExprStmt) *ast.BlockStmt {
 	return ret
 }
 
-func NewSelectExp(exp ast.Expr, ident *ast.Ident) *ast.SelectorExpr {
+func NewSelectExp(x ast.Expr, sel *ast.Ident) *ast.SelectorExpr {
 	return &ast.SelectorExpr{
-		X:   exp,
-		Sel: ident,
-		//X:NewIdent(ident),
+		X:   x,
+		Sel: sel,
 	}
 }
 
@@ -91,7 +90,20 @@ func NewStarExp(exp ast.Expr) *ast.StarExpr {
 		//X:NewIdent(ident),
 	}
 }
-func NewField(fieldNames []string, typeName string, isStartExpr bool, tag *ast.BasicLit) *ast.Field {
+
+/*
+example ====>
+type svc interface {
+  UserGet(ctx context.Context, reqproto *partnerproto.StaffAuthFetchReqProto)(*partnerproto.StaffAuthFetchRespProto, error)
+}
+
+====>
+typeVals: context.Context
+typeName: StartExpr
+fieldNames: ctx
+tag: nil
+*/
+func NewField(fieldNames []string, typeVals []string, typeName string, tag *ast.BasicLit) *ast.Field {
 	names := make([]*ast.Ident, 0)
 	for _, v := range fieldNames {
 		names = append(names, NewIdent(v))
@@ -101,10 +113,16 @@ func NewField(fieldNames []string, typeName string, isStartExpr bool, tag *ast.B
 		Names: names,
 		Tag:   tag,
 	}
-	if isStartExpr {
-		ret.Type = NewStarExp(NewIdent(typeName))
-	} else {
-		ret.Type = NewIdent(typeName)
+	switch typeName {
+	case "StartExpr":
+		ret.Type = NewStarExp(NewIdent(typeVals[0]))
+	case "Ident":
+		ret.Type = NewIdent(typeVals[0])
+	case "SelectorExpr":
+		ret.Type = NewSelectExp(NewIdent(typeVals[0]), NewIdent(typeVals[1]))
+	//todo:    other expr
+	default:
+		ret.Type = NewIdent(typeVals[0])
 	}
 
 	return ret
