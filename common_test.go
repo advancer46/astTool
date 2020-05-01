@@ -27,7 +27,7 @@ type svc interface {
 	typeSpec := resultNode.Specs[0].(*ast.TypeSpec)
 	interfaceType := typeSpec.Type.(*ast.InterfaceType)
 
-	newfunctype := NewFuncType("", nil, nil)
+	newfunctype := NewFuncType(nil, nil)
 	newField := NewFieldOfFuncType([]string{"RoleGet"}, newfunctype, nil)
 
 	fieldList := NewFieldList(newField)
