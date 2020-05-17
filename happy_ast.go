@@ -60,7 +60,7 @@ ActivityHost           string ` + "`" + `json:"activity_service_host"` + "`" + `
 		h = ParseFromFile(codeFile)
 	}
 	tag := NewBasicLit(token.STRING, "`json:\"brandcustomer_service_host\"`")
-	field := NewField([]string{"BrandHost"}, []string{}, "string", tag)
+	field := NewField([]string{"BrandHost"}, NewIdent("string"), ExprTypeIdent, tag)
 	gpos := h.FindStructDeclNode("Microservice")
 	gnode := h.FindNodeByPos(gpos)
 	structNode := (*gnode).(*ast.TypeSpec).Type.(*ast.StructType)

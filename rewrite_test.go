@@ -40,9 +40,9 @@ func (h *Receive) testFoo(a, b string) {
 	// 1, add tail decl
 	expStmt := NewExpStmt(NewCallExpr("callFoo1"))
 	blkStmt := NewBlockStmt(expStmt)
-	recvField := NewField([]string{"h"}, []string{"Receive"}, "", nil)
+	recvField := NewField([]string{"h"}, NewIdent("Receive"), ExprTypeIdent, nil)
 	_ = recvField
-	field := NewField([]string{"a", "b"}, []string{"string"}, "", nil)
+	field := NewField([]string{"a", "b"}, NewIdent("string"), ExprTypeIdent, nil)
 	commentgroup := NewCommentGroup(NewComment("// this is comment"))
 	funcDecl := NewFuncDecl("testFoo", blkStmt, NewFieldList(recvField), NewFieldList(field), commentgroup)
 	h.AddDecl(TAIL, funcDecl)
@@ -92,7 +92,7 @@ type Microservice struct {
 	h := ParseFromCode(srcode)
 
 	tag := NewBasicLit(token.STRING, "`json:\"brandcustomer_service_host\"`")
-	field := NewField([]string{"BrandHost"}, []string{"string"}, "", tag)
+	field := NewField([]string{"BrandHost"}, NewIdent("string"), ExprTypeIdent, tag)
 	gpos := h.FindStructDeclNode("Microservice")
 	gnode := h.FindNodeByPos(gpos)
 	structNode := (*gnode).(*ast.TypeSpec).Type.(*ast.StructType)
@@ -160,8 +160,8 @@ func (h *Receive) testFoo2(a, b string) {
 	// 1, append decl 1
 	expStmt := NewExpStmt(NewCallExpr("callFoo"))
 	blkStmt := NewBlockStmt(expStmt)
-	recvField := NewField([]string{"h"}, []string{"Receive"}, "", nil)
-	field := NewField([]string{"a", "b"}, []string{"string"}, "", nil)
+	recvField := NewField([]string{"h"}, NewIdent("Receive"), ExprTypeIdent, nil)
+	field := NewField([]string{"a", "b"}, NewIdent("string"), ExprTypeIdent, nil)
 	commentgroup := NewCommentGroup(NewComment("// this is comment"))
 	funcDecl1 := NewFuncDecl("testFoo1", blkStmt, NewFieldList(recvField), NewFieldList(field), commentgroup)
 	h.AppendFundDecl(1, funcDecl1)
@@ -169,8 +169,8 @@ func (h *Receive) testFoo2(a, b string) {
 	// 1, append decl 2
 	expStmt = NewExpStmt(NewCallExpr("callFoo"))
 	blkStmt = NewBlockStmt(expStmt)
-	recvField = NewField([]string{"h"}, []string{"Receive"}, "", nil)
-	field = NewField([]string{"a", "b"}, []string{"string"}, "", nil)
+	recvField = NewField([]string{"h"}, NewIdent("Receive"), ExprTypeIdent, nil)
+	field = NewField([]string{"a", "b"}, NewIdent("string"), ExprTypeIdent, nil)
 	commentgroup = NewCommentGroup(NewComment("// this is comment"))
 	funcDecl2 := NewFuncDecl("testFoo2", blkStmt, NewFieldList(recvField), NewFieldList(field), commentgroup)
 	h.AppendFundDecl(2, funcDecl2)

@@ -5,6 +5,14 @@ import (
 	"go/token"
 )
 
+type ExprType string
+
+const (
+	ExprTypeIdent        ExprType = "Ident"
+	ExprTypeStartExpr             = "StartExpr"
+	ExprTypeSelectorExpr          = "SelectorExpr"
+)
+
 func NewIdent(name string) *ast.Ident {
 	return &ast.Ident{
 		Name:    name,
@@ -103,7 +111,7 @@ typeName: StartExpr
 fieldNames: ctx
 tag: nil
 */
-func NewField(fieldNames []string, typeVals []string, typeName string, tag *ast.BasicLit) *ast.Field {
+func NewField(fieldNames []string, typeVal ast.Expr, typeName ExprType, tag *ast.BasicLit) *ast.Field {
 	names := make([]*ast.Ident, 0)
 	for _, v := range fieldNames {
 		names = append(names, NewIdent(v))
@@ -114,15 +122,16 @@ func NewField(fieldNames []string, typeVals []string, typeName string, tag *ast.
 		Tag:   tag,
 	}
 	switch typeName {
-	case "StartExpr":
-		ret.Type = NewStarExp(NewIdent(typeVals[0]))
-	case "Ident":
-		ret.Type = NewIdent(typeVals[0])
-	case "SelectorExpr":
-		ret.Type = NewSelectExp(NewIdent(typeVals[0]), NewIdent(typeVals[1]))
+	case ExprTypeStartExpr:
+		ret.Type = typeVal
+	case ExprTypeIdent:
+		ret.Type = typeVal
+	case ExprTypeSelectorExpr:
+		//ret.Type = NewSelectExp(NewIdent(typeVals[0]), NewIdent(typeVals[1]))
+		ret.Type = typeVal
 	//todo:    other expr
 	default:
-		ret.Type = NewIdent(typeVals[0])
+		ret.Type = typeVal
 	}
 
 	return ret
