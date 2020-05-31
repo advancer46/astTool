@@ -128,3 +128,24 @@ func (h *HappyAst) AddFieldOfFuncType(bmt *ast.FieldList, location int, field *a
 	tempFieldList = append(tempFieldList, bmt.List[location:]...)
 	bmt.List = tempFieldList
 }
+
+/*
+type PartnerSvcEndpoints struct {
+	modelFetchEndpoint  kitendpoint.Endpoint
+}
+
+=>
+
+type PartnerSvcEndpoints struct {
+	modelFetchEndpoint  kitendpoint.Endpoint
+	gameFetchEndpoint  kitendpoint.Endpoint
+}
+*/
+func (h *HappyAst) AddField(bmt *ast.FieldList, location int, field *ast.Field) {
+	tempFieldList := make([]*ast.Field, 0)
+
+	tempFieldList = append(tempFieldList, bmt.List[:location]...)
+	tempFieldList = append(tempFieldList, field)
+	tempFieldList = append(tempFieldList, bmt.List[location:]...)
+	bmt.List = tempFieldList
+}

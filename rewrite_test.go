@@ -218,3 +218,44 @@ type svc interface {
 		t.Errorf("\n got:%q, \n exp:%q", got, expect)
 	}
 }
+
+func TestHappyAst_AddField(t *testing.T) {
+	var input = `package miclient
+type PartnerSvcEndpoints struct {
+	modelFetchEndpoint kitendpoint.Endpoint
+}`
+	var expect = `package miclient
+
+type PartnerSvcEndpoints struct {
+	modelFetchEndpoint kitendpoint.Endpoint
+	gameFetchEndpoint  kitendpoint.Endpoint
+}
+`
+
+	_, _ = input, expect
+
+	h := ParseFromCode(input)
+
+	//search
+	searcher := Searcher{Root: h.Ast}
+	declName := "PartnerSvcEndpoints"
+	resultNode := searcher.FindTypeDecl(declName)
+	if resultNode == nil {
+		t.Logf("can not find typeDecl(%s)", declName)
+	}
+	typeSpec := resultNode.Specs[0].(*ast.TypeSpec)
+	interfaceType := typeSpec.Type.(*ast.StructType)
+	fieldList := interfaceType.Fields
+	_ = fieldList
+
+	// add
+	selectExp := NewSelectExp(NewIdent("kitendpoint"), NewIdent("Endpoint"))
+	paramField := NewField([]string{"gameFetchEndpoint"}, selectExp, ExprTypeSelectorExpr, nil)
+
+	h.AddField(fieldList, 1, paramField)
+
+	got := h.Output()
+	if got != expect {
+		t.Errorf("\n got:%q, \n exp:%q", got, expect)
+	}
+}
