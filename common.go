@@ -59,12 +59,13 @@ func NewValueSpec(ident string, expr ast.Expr) *ast.ValueSpec {
 	}
 }
 
-func NewCallExpr(funcName string) *ast.CallExpr {
+func NewCallExpr(f ast.Expr, args []ast.Expr) *ast.CallExpr {
 	return &ast.CallExpr{
-		Fun:  NewIdent(funcName),
-		Args: []ast.Expr{
-			//NewBasicLit(token.INT,"42"),
-		},
+		Fun:      f,
+		Args:     args,
+		Lparen:   token.NoPos,
+		Ellipsis: token.NoPos,
+		Rparen:   token.NoPos,
 	}
 }
 

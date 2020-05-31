@@ -38,7 +38,7 @@ func (h *Receive) testFoo(a, b string) {
 	}
 
 	// 1, add tail decl
-	expStmt := NewExpStmt(NewCallExpr("callFoo1"))
+	expStmt := NewExpStmt(NewCallExpr(NewIdent("callFoo1"), nil))
 	blkStmt := NewBlockStmt(expStmt)
 	recvField := NewField([]string{"h"}, NewIdent("Receive"), ExprTypeIdent, nil)
 	_ = recvField
@@ -68,7 +68,7 @@ func testFoo() { CALLfoo() }
 	fnode := h.FindNodeByPos(fpos)
 	fbody := (*fnode).(*ast.FuncDecl).Body
 
-	stmt := NewExpStmt(NewCallExpr("CALLfoo"))
+	stmt := NewExpStmt(NewCallExpr(NewIdent("CALLfoo"), nil))
 	h.AddStmt(fbody, TAIL, stmt)
 	gotCode := h.Output()
 	if gotCode != wantedCode {
@@ -158,7 +158,7 @@ func (h *Receive) testFoo2(a, b string) {
 	h := ParseFromCode(input)
 
 	// 1, append decl 1
-	expStmt := NewExpStmt(NewCallExpr("callFoo"))
+	expStmt := NewExpStmt(NewCallExpr(NewIdent("callFoo"), nil))
 	blkStmt := NewBlockStmt(expStmt)
 	recvField := NewField([]string{"h"}, NewIdent("Receive"), ExprTypeIdent, nil)
 	field := NewField([]string{"a", "b"}, NewIdent("string"), ExprTypeIdent, nil)
@@ -167,7 +167,7 @@ func (h *Receive) testFoo2(a, b string) {
 	h.AppendFundDecl(1, funcDecl1)
 
 	// 1, append decl 2
-	expStmt = NewExpStmt(NewCallExpr("callFoo"))
+	expStmt = NewExpStmt(NewCallExpr(NewIdent("callFoo"), nil))
 	blkStmt = NewBlockStmt(expStmt)
 	recvField = NewField([]string{"h"}, NewIdent("Receive"), ExprTypeIdent, nil)
 	field = NewField([]string{"a", "b"}, NewIdent("string"), ExprTypeIdent, nil)
