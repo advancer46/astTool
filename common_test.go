@@ -35,7 +35,7 @@ type svc interface {
 	//replace
 	interfaceType.Methods = fieldList
 
-	got := h.Output()
+	got := h.Output(nil)
 	if got != expect {
 		t.Errorf("\n got:%q,\n exp:%q", got, expect)
 	}
@@ -84,7 +84,7 @@ type svc interface {
 	//replace
 	interfaceType.Methods = fieldList
 
-	got := h.Output()
+	got := h.Output(nil)
 	if got != expect {
 		t.Errorf("\n got:%q,\n exp:%q", got, expect)
 	}

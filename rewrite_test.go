@@ -33,8 +33,8 @@ func (h *Receive) testFoo(a, b string) {
 	spec := NewValueSpec("name", nil)
 	decl := NewGenDecl(token.VAR, spec)
 	h.AddDecl(HEAD, decl)
-	if h.Output() != wantedCodes[0] {
-		t.Errorf("case %d got %q;wanted %q", 0, h.Output(), wantedCodes[0])
+	if h.Output(nil) != wantedCodes[0] {
+		t.Errorf("case %d got %q;wanted %q", 0, h.Output(nil), wantedCodes[0])
 	}
 
 	// 1, add tail decl
@@ -46,8 +46,8 @@ func (h *Receive) testFoo(a, b string) {
 	commentgroup := NewCommentGroup(NewComment("// this is comment"))
 	funcDecl := NewFuncDecl("testFoo", blkStmt, NewFieldList(recvField), NewFieldList(field), commentgroup)
 	h.AddDecl(TAIL, funcDecl)
-	if h.Output() != wantedCodes[1] {
-		t.Errorf("case %d got %q;wanted %q", 1, h.Output(), wantedCodes[1])
+	if h.Output(nil) != wantedCodes[1] {
+		t.Errorf("case %d got %q;wanted %q", 1, h.Output(nil), wantedCodes[1])
 	}
 }
 
@@ -70,7 +70,7 @@ func testFoo() { CALLfoo() }
 
 	stmt := NewExpStmt(NewCallExpr(NewIdent("CALLfoo"), nil))
 	h.AddStmt(fbody, TAIL, stmt)
-	gotCode := h.Output()
+	gotCode := h.Output(nil)
 	if gotCode != wantedCode {
 		t.Errorf("got %q;wanted %q", gotCode, wantedCode)
 	}
@@ -98,7 +98,7 @@ type Microservice struct {
 	structNode := (*gnode).(*ast.TypeSpec).Type.(*ast.StructType)
 	structNode.Fields.List = append(structNode.Fields.List, field)
 	h.ReplaceNode(gpos, *gnode)
-	updatedCode := h.Output()
+	updatedCode := h.Output(nil)
 	if updatedCode != caseCode {
 		t.Errorf("got \n%q\nwanted \n%q", updatedCode, caseCode)
 	}
@@ -130,7 +130,7 @@ func testFoo() { x := 3; _ = x }
 	funcNode := searcher.FindFuncDeclGlobal("testFoo")
 	h.AddAssignStmt(funcNode.Body, 0, assignStmt1)
 	h.AddAssignStmt(funcNode.Body, 1, assignStmt2)
-	newcode := h.Output()
+	newcode := h.Output(nil)
 
 	if newcode != expect {
 		t.Errorf("\ngot:%q \nexp:%q", newcode, expect)
@@ -175,8 +175,8 @@ func (h *Receive) testFoo2(a, b string) {
 	funcDecl2 := NewFuncDecl("testFoo2", blkStmt, NewFieldList(recvField), NewFieldList(field), commentgroup)
 	h.AppendFundDecl(2, funcDecl2)
 
-	if h.Output() != expect {
-		t.Errorf("\ngot: %q \nexp: %q", h.Output(), expect)
+	if h.Output(nil) != expect {
+		t.Errorf("\ngot: %q \nexp: %q", h.Output(nil), expect)
 	}
 }
 
@@ -213,7 +213,7 @@ type svc interface {
 	newField := NewFieldOfFuncType([]string{"RoleGet"}, newfunctype, nil)
 	h.AddFieldOfFuncType(fieldList, 1, newField)
 
-	got := h.Output()
+	got := h.Output(nil)
 	if got != expect {
 		t.Errorf("\n got:%q, \n exp:%q", got, expect)
 	}
@@ -254,7 +254,7 @@ type PartnerSvcEndpoints struct {
 
 	h.AddField(fieldList, 1, paramField)
 
-	got := h.Output()
+	got := h.Output(nil)
 	if got != expect {
 		t.Errorf("\n got:%q, \n exp:%q", got, expect)
 	}

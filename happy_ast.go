@@ -66,7 +66,7 @@ ActivityHost           string ` + "`" + `json:"activity_service_host"` + "`" + `
 	structNode := (*gnode).(*ast.TypeSpec).Type.(*ast.StructType)
 	structNode.Fields.List = append(structNode.Fields.List, field)
 	h.ReplaceNode(gpos, *gnode)
-	fmt.Println(h.Output())
+	fmt.Println(h.Output(nil))
 }
 
 func ParseFromFile(codeFile string) *HappyAst {

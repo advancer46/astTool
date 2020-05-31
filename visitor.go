@@ -110,7 +110,7 @@ func NewPartnerSvcEndpoints(service service.PartnerSvcService) int {
 	return 0
 }
 */
-func (v Searcher) FindFuncDeclGlobal(name string) *ast.FuncDecl {
+func (v Searcher) FindFuncDecl(name string) *ast.FuncDecl {
 	visitor := MyVisitor{Result: make([]ast.Node, 0), Name: name, Type: "FuncDecl"}
 
 	ast.Inspect(v.Root, visitor.Inspector)
@@ -121,7 +121,7 @@ func (v Searcher) FindFuncDeclGlobal(name string) *ast.FuncDecl {
 	}
 }
 
-func (v Searcher) FindValueSpecGlobal(name string) *ast.ValueSpec {
+func (v Searcher) FindValueSpec(name string) *ast.ValueSpec {
 	visitor := MyVisitor{Result: make([]ast.Node, 0), Name: name, Type: "ValueSpec"}
 
 	ast.Inspect(v.Root, visitor.Inspector)
