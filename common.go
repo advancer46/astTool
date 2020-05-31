@@ -68,23 +68,6 @@ func NewCallExpr(funcName string) *ast.CallExpr {
 	}
 }
 
-func NewExpStmt(x ast.Expr) *ast.ExprStmt {
-	return &ast.ExprStmt{
-		X: x,
-	}
-}
-func NewBlockStmt(expStmt ...*ast.ExprStmt) *ast.BlockStmt {
-	ret := &ast.BlockStmt{}
-	ret.List = make([]ast.Stmt, 0)
-	for _, v := range expStmt {
-		if expStmt == nil {
-			continue
-		}
-		ret.List = append(ret.List, v)
-	}
-	return ret
-}
-
 func NewSelectExp(x ast.Expr, sel *ast.Ident) *ast.SelectorExpr {
 	return &ast.SelectorExpr{
 		X:   x,
@@ -96,6 +79,14 @@ func NewStarExp(exp ast.Expr) *ast.StarExpr {
 	return &ast.StarExpr{
 		X: exp,
 		//X:NewIdent(ident),
+	}
+}
+
+func NewKeyValueExp(key, val ast.Expr) *ast.KeyValueExpr {
+	return &ast.KeyValueExpr{
+		Key:   key,
+		Value: val,
+		Colon: token.NoPos,
 	}
 }
 
@@ -199,6 +190,16 @@ func NewBasicLit(kind token.Token, value string) *ast.BasicLit {
 	}
 }
 
+//new compositeLit
+func NewCompositeLit(typ ast.Expr, elts []ast.Expr) *ast.CompositeLit {
+	return &ast.CompositeLit{
+		Type:   typ,
+		Lbrace: token.NoPos,
+		Elts:   elts,
+		Rbrace: token.NoPos,
+	}
+}
+
 func NewAssignStmt(lhs, rhs []ast.Expr) *ast.AssignStmt {
 
 	return &ast.AssignStmt{
@@ -217,6 +218,31 @@ func NewShortAssignStmt(lhs, rhs []ast.Expr) *ast.AssignStmt {
 		TokPos: token.NoPos,
 		Tok:    token.DEFINE,
 	}
+}
+
+func NewReturnStmt(results []ast.Expr) *ast.ReturnStmt {
+
+	return &ast.ReturnStmt{
+		Results: results,
+		Return:  token.NoPos,
+	}
+}
+
+func NewExpStmt(x ast.Expr) *ast.ExprStmt {
+	return &ast.ExprStmt{
+		X: x,
+	}
+}
+func NewBlockStmt(expStmt ...*ast.ExprStmt) *ast.BlockStmt {
+	ret := &ast.BlockStmt{}
+	ret.List = make([]ast.Stmt, 0)
+	for _, v := range expStmt {
+		if expStmt == nil {
+			continue
+		}
+		ret.List = append(ret.List, v)
+	}
+	return ret
 }
 
 //new import spec
