@@ -34,6 +34,15 @@ func (v *MyVisitor) Inspector(node ast.Node) bool {
 				return false
 			}
 		}
+	case *ast.KeyValueExpr:
+		switch y := x.Key.(type) {
+		case *ast.Ident:
+			if v.Name == y.Name && v.Type == "KeyValueExpr" {
+				v.Result = append(v.Result, x)
+				return false
+			}
+		}
+
 	case *ast.Field:
 		for _, item := range x.Names {
 			if v.Name == item.Name && v.Type == "Field" {

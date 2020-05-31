@@ -9,31 +9,29 @@ import (
 
 func TestSearcher_FindFuncDecl(t *testing.T) {
 
-	srccode := `package main
+	var input = `package miclient
 
-import "fmt"
-
-const TIPS = "jack";
-
-func PrintTips() {
-    fmt.Println(TIPS)
+func NewPartnerSvcEndpoints(service service.PartnerSvcService) int {
+	return 0
 }
-func Tet(){}
 `
-	fset = token.NewFileSet()
-	astNode, err := parser.ParseFile(fset, "", srccode, parser.ParseComments)
-	if err != nil {
-		panic(err)
-	}
-	nodes := make([]ast.Node, 0)
-	nodes = append(nodes, astNode)
-	searcher := Searcher{
-		Root: astNode}
-	resultNode := searcher.FindFuncDeclGlobal("PrintTips")
+	var expect = `func NewPartnerSvcEndpoints(service service.PartnerSvcService) int {
+	return 0
+}`
+
+	h := ParseFromCode(input)
+
+	searcher := Searcher{Root: h.Ast}
+
+	resultNode := searcher.FindFuncDeclGlobal("NewPartnerSvcEndpoints")
 	if resultNode != nil {
-		if resultNode.Name.Name != "PrintTips" {
-			t.Errorf("got %s,expect %s", resultNode.Name.Name, "PrintTips")
+		got := h.OutputNode(resultNode)
+
+		if got != expect {
+			t.Errorf("\n got %q, \n exp %q", got, expect)
 		}
+	} else {
+		t.Logf("got nil,expect %q", expect)
 	}
 }
 
@@ -150,33 +148,6 @@ type s interface{
 	searcher := Searcher{Root: h.Ast}
 
 	resultNode := searcher.FindTypeDecl("s")
-	if resultNode != nil {
-		got := h.OutputNode(resultNode)
-
-		if got != expect {
-			t.Errorf("\n got %q, \n exp %q", got, expect)
-		}
-	} else {
-		t.Logf("got nil,expect %q", expect)
-	}
-}
-
-func TestSearcher_FindFuncDecl_case1(t *testing.T) {
-	var input = `package miclient
-
-func NewPartnerSvcEndpoints(service service.PartnerSvcService) int {
-	return 0
-}
-`
-	var expect = `func NewPartnerSvcEndpoints(service service.PartnerSvcService) int {
-	return 0
-}`
-
-	h := ParseFromCode(input)
-
-	searcher := Searcher{Root: h.Ast}
-
-	resultNode := searcher.FindFuncDecl("NewPartnerSvcEndpoints")
 	if resultNode != nil {
 		got := h.OutputNode(resultNode)
 
