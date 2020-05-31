@@ -130,6 +130,12 @@ func (h *HappyAst) AddFieldOfFuncType(bmt *ast.FieldList, location int, field *a
 }
 
 /*
+参数:
+bmt,被插入的fieldList
+location,在bmt中的顺序. -1尾部添加  0头部添加
+field,插入的field
+
+示例:
 type PartnerSvcEndpoints struct {
 	modelFetchEndpoint  kitendpoint.Endpoint
 }
@@ -144,8 +150,14 @@ type PartnerSvcEndpoints struct {
 func (h *HappyAst) AddField(bmt *ast.FieldList, location int, field *ast.Field) {
 	tempFieldList := make([]*ast.Field, 0)
 
-	tempFieldList = append(tempFieldList, bmt.List[:location]...)
-	tempFieldList = append(tempFieldList, field)
-	tempFieldList = append(tempFieldList, bmt.List[location:]...)
+	if location == -1 {
+		tempFieldList = append(tempFieldList, bmt.List[:]...)
+		tempFieldList = append(tempFieldList, field)
+	} else {
+		tempFieldList = append(tempFieldList, bmt.List[:location]...)
+		tempFieldList = append(tempFieldList, field)
+		tempFieldList = append(tempFieldList, bmt.List[location:]...)
+	}
+
 	bmt.List = tempFieldList
 }
