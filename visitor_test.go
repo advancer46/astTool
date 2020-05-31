@@ -161,6 +161,33 @@ type s interface{
 	}
 }
 
+func TestSearcher_FindFuncDecl_case1(t *testing.T) {
+	var input = `package miclient
+
+func NewPartnerSvcEndpoints(service service.PartnerSvcService) int {
+	return 0
+}
+`
+	var expect = `func NewPartnerSvcEndpoints(service service.PartnerSvcService) int {
+	return 0
+}`
+
+	h := ParseFromCode(input)
+
+	searcher := Searcher{Root: h.Ast}
+
+	resultNode := searcher.FindFuncDecl("NewPartnerSvcEndpoints")
+	if resultNode != nil {
+		got := h.OutputNode(resultNode)
+
+		if got != expect {
+			t.Errorf("\n got %q, \n exp %q", got, expect)
+		}
+	} else {
+		t.Logf("got nil,expect %q", expect)
+	}
+}
+
 func TestSearcher_FindField(t *testing.T) {
 	var input = `package service
 

@@ -136,6 +136,29 @@ func (v Searcher) FindTypeDecl(name string) *ast.GenDecl {
 /*
 示例:
 package miclient
+
+func NewPartnerSvcEndpoints(service service.PartnerSvcService) int {
+	return 0
+}
+====>
+func NewPartnerSvcEndpoints(service service.PartnerSvcService) int {
+	return 0
+}
+*/
+func (v Searcher) FindFuncDecl(name string) *ast.FuncDecl {
+	visitor := MyVisitor{Result: make([]ast.Node, 0), Name: name, Type: "FuncDecl"}
+
+	ast.Inspect(v.Root, visitor.Inspector)
+	if len(visitor.Result) > 0 {
+		return visitor.Result[0].(*ast.FuncDecl)
+	} else {
+		return nil
+	}
+}
+
+/*
+示例:
+package miclient
 type s struct{
  	a int32
 }
