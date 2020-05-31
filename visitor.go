@@ -174,3 +174,29 @@ func (v Searcher) FindField(name string) *ast.Field {
 		return nil
 	}
 }
+
+/*
+示例:
+package miclient
+type s struct{
+ 	a int32
+}
+func NewPartnerSvcEndpoints(service service.PartnerSvcService) PartnerSvcEndpoints {
+    return PartnerSvcEndpoints{
+		modelFetchEndpoint:  MakemodelFetchEndpoint(service),
+		modelCreateEndpoint:  MakemodelCreateEndpoint(service),
+	}
+}
+=====>
+modelFetchEndpoint:  MakemodelFetchEndpoint(service)
+*/
+func (v Searcher) FindKeyValExpr(name string) *ast.KeyValueExpr {
+	visitor := MyVisitor{Result: make([]ast.Node, 0), Name: name, Type: "KeyValueExpr"}
+
+	ast.Inspect(v.Root, visitor.Inspector)
+	if len(visitor.Result) > 0 {
+		return visitor.Result[0].(*ast.KeyValueExpr)
+	} else {
+		return nil
+	}
+}

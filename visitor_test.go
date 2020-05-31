@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"log"
 	"testing"
 )
 
@@ -178,6 +179,45 @@ type PrivilegeSvcService interface {
 
 		if resultNode.Names[0].Name != expect {
 			t.Errorf("\n got %q, \n exp %q", resultNode.Names[0].Name, expect)
+		}
+	} else {
+		t.Logf("got nil,expect %q", expect)
+	}
+}
+
+func TestSearcher_FindKeyValExpr(t *testing.T) {
+	var input = `package miclient
+type s struct{
+ 	a int32
+}
+func NewPartnerSvcEndpoints(service service.PartnerSvcService) PartnerSvcEndpoints {
+    return PartnerSvcEndpoints{
+		modelFetchEndpoint:MakemodelFetchEndpoint(service),
+		modelCreateEndpoint:MakemodelCreateEndpoint(service),
+	}
+}
+`
+	var expect = `modelFetchEndpoint:
+MakemodelFetchEndpoint(service)`
+
+	h := ParseFromCode(input)
+	searcher := Searcher{Root: h.Ast}
+	funcDeclName := "NewPartnerSvcEndpoints"
+	funcDeclNode := searcher.FindFuncDeclGlobal(funcDeclName)
+	if funcDeclNode == nil {
+		log.Printf("func decl(%s) not exsit", funcDeclName)
+		return
+	}
+	funcBodyNode := funcDeclNode.Body
+	returnStmtNode := funcBodyNode.List[0].(*ast.ReturnStmt)
+	compLitNode := returnStmtNode.Results[0].(*ast.CompositeLit)
+
+	kvsearcher := Searcher{Root: compLitNode}
+	resultNode := kvsearcher.FindKeyValExpr("modelFetchEndpoint")
+	if resultNode != nil {
+		got := h.OutputNode(resultNode)
+		if got != expect {
+			t.Errorf("\n got %q, \n exp %q", got, expect)
 		}
 	} else {
 		t.Logf("got nil,expect %q", expect)
