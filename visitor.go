@@ -51,6 +51,16 @@ func (v *MyVisitor) Inspector(node ast.Node) bool {
 			}
 		}
 
+	case *ast.AssignStmt:
+		lhs := x.Lhs
+		for _, item := range lhs {
+			idt := item.(*ast.Ident)
+			if v.Name == idt.Name && v.Type == "AssignStmt" {
+				v.Result = append(v.Result, x)
+				return false
+			}
+		}
+
 	case *ast.GenDecl:
 		switch x.Tok.String() {
 		case "type":
@@ -196,6 +206,28 @@ func (v Searcher) FindKeyValExpr(name string) *ast.KeyValueExpr {
 	ast.Inspect(v.Root, visitor.Inspector)
 	if len(visitor.Result) > 0 {
 		return visitor.Result[0].(*ast.KeyValueExpr)
+	} else {
+		return nil
+	}
+}
+
+/*
+示例:
+package service
+
+func NewGRPCEndpoint(client kitconsul.Client, guesssvcport int) (guessendpoint.GuessSvcEndpoints, *tlog.LogError) {
+ 	modelFetchFactory := createGuessSvcFactory(Modelendpoint.MakeModelFetchEndpoint, guesssvcport)
+	return endpoints, nil
+}
+=====>
+modelFetchFactory := createGuessSvcFactory(Modelendpoint.MakeModelFetchEndpoint, guesssvcport)
+*/
+func (v Searcher) FindAssignStmt(name string) *ast.AssignStmt {
+	visitor := MyVisitor{Result: make([]ast.Node, 0), Name: name, Type: "AssignStmt"}
+
+	ast.Inspect(v.Root, visitor.Inspector)
+	if len(visitor.Result) > 0 {
+		return visitor.Result[0].(*ast.AssignStmt)
 	} else {
 		return nil
 	}

@@ -223,3 +223,37 @@ MakemodelFetchEndpoint(service)`
 		t.Logf("got nil,expect %q", expect)
 	}
 }
+
+func TestSearcher_FindAssignAssign(t *testing.T) {
+	var input = `package service
+
+func NewGRPCEndpoint(client kitconsul.Client, guesssvcport int) (guessendpoint.GuessSvcEndpoints, *tlog.LogError) {
+ 	modelFetchFactory := createGuessSvcFactory(Modelendpoint.MakeModelFetchEndpoint, guesssvcport)
+	return endpoints, nil
+}
+`
+	var expect = `modelFetchFactory := createGuessSvcFactory(Modelendpoint.MakeModelFetchEndpoint, guesssvcport)`
+
+	h := ParseFromCode(input)
+	searcher := Searcher{Root: h.Ast}
+	funcDeclName := "NewGRPCEndpoint"
+	funcDeclNode := searcher.FindFuncDecl(funcDeclName)
+	if funcDeclNode == nil {
+		log.Printf("func decl(%s) not exsit", funcDeclName)
+		return
+	}
+	//funcBodyNode := funcDeclNode.Body
+	//returnStmtNode := funcBodyNode.List[0].(*ast.ReturnStmt)
+	//compLitNode := returnStmtNode.Results[0].(*ast.CompositeLit)
+
+	assignStmtSearcher := Searcher{Root: funcDeclNode.Body}
+	resultNode := assignStmtSearcher.FindAssignStmt("modelFetchFactory")
+	if resultNode != nil {
+		got := h.OutputNode(resultNode)
+		if got != expect {
+			t.Errorf("\n got %q, \n exp %q", got, expect)
+		}
+	} else {
+		t.Logf("got nil,expect %q", expect)
+	}
+}

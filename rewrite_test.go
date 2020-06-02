@@ -127,7 +127,7 @@ func testFoo() { x := 3; _ = x }
 	assignStmt2 := NewAssignStmt(lhs, rhs)
 
 	searcher := Searcher{Root: h.Ast}
-	funcNode := searcher.FindFuncDeclGlobal("testFoo")
+	funcNode := searcher.FindFuncDecl("testFoo")
 	h.AddAssignStmt(funcNode.Body, 0, assignStmt1)
 	h.AddAssignStmt(funcNode.Body, 1, assignStmt2)
 	newcode := h.Output(nil)
