@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	HEAD = "head"
-	TAIL = "tail"
+	HEAD = 0
+	TAIL = -1
 )
 
 /*
@@ -38,18 +38,26 @@ func (h *HappyAst) ReplaceNode(pos token.Pos, newNode ast.Node) error {
 	添加语句
 	@deprecated
 */
-func (h *HappyAst) AddStmt(bmt *ast.BlockStmt, location string, stmt ast.Stmt) {
-	if location == HEAD {
+func (h *HappyAst) AddStmt(bmt *ast.BlockStmt, location int, stmt ast.Stmt) {
+
+	switch location {
+	case HEAD:
 		tempStmtList := make([]ast.Stmt, 0)
 		tempStmtList = append(tempStmtList, stmt)
 		for _, v := range bmt.List {
 			tempStmtList = append(tempStmtList, v)
 		}
-	} else {
-		tempStmtList := bmt.List
+	case TAIL:
+		tempStmtList := make([]ast.Stmt, 0)
 		tempStmtList = append(tempStmtList, stmt)
 		bmt.List = tempStmtList
+	default:
+		tempStmtList := make([]ast.Stmt, 0)
+		tempStmtList = append(tempStmtList, bmt.List[:location]...)
+		tempStmtList = append(tempStmtList, stmt)
+		tempStmtList = append(tempStmtList, bmt.List[location:]...)
 	}
+
 }
 
 /*
@@ -61,9 +69,19 @@ func (h *HappyAst) AddStmt(bmt *ast.BlockStmt, location string, stmt ast.Stmt) {
 func (h *HappyAst) AddAssignStmt(bmt *ast.BlockStmt, location int, stmt ast.Stmt) {
 	tempStmtList := make([]ast.Stmt, 0)
 
-	tempStmtList = append(tempStmtList, bmt.List[:location]...)
-	tempStmtList = append(tempStmtList, stmt)
-	tempStmtList = append(tempStmtList, bmt.List[location:]...)
+	switch location {
+	case HEAD:
+		tempStmtList = append(tempStmtList, stmt)
+		tempStmtList = append(tempStmtList, bmt.List[:]...)
+	case TAIL:
+		tempStmtList = append(tempStmtList, bmt.List[:]...)
+		tempStmtList = append(tempStmtList, stmt)
+	default:
+		tempStmtList = append(tempStmtList, bmt.List[:location]...)
+		tempStmtList = append(tempStmtList, stmt)
+		tempStmtList = append(tempStmtList, bmt.List[location:]...)
+	}
+
 	bmt.List = tempStmtList
 }
 
@@ -75,9 +93,18 @@ func (h *HappyAst) AddAssignStmt(bmt *ast.BlockStmt, location int, stmt ast.Stmt
 func (h *HappyAst) AppendFundDecl(location int, decl ast.Decl) {
 	tempDeclList := make([]ast.Decl, 0)
 
-	tempDeclList = append(tempDeclList, h.Ast.Decls[:location]...)
-	tempDeclList = append(tempDeclList, decl)
-	tempDeclList = append(tempDeclList, h.Ast.Decls[location:]...)
+	switch location {
+	case HEAD:
+		tempDeclList = append(tempDeclList, decl)
+		tempDeclList = append(tempDeclList, h.Ast.Decls[:]...)
+	case TAIL:
+		tempDeclList = append(tempDeclList, h.Ast.Decls[:]...)
+		tempDeclList = append(tempDeclList, decl)
+	default:
+		tempDeclList = append(tempDeclList, h.Ast.Decls[:location]...)
+		tempDeclList = append(tempDeclList, decl)
+		tempDeclList = append(tempDeclList, h.Ast.Decls[location:]...)
+	}
 	h.Ast.Decls = tempDeclList
 }
 
@@ -85,27 +112,30 @@ func (h *HappyAst) AppendFundDecl(location int, decl ast.Decl) {
 	添加声明
 	@deprecated
 */
-func (h *HappyAst) AddDecl(location string, appends ...ast.Decl) {
-	if location == HEAD {
-		tempDecls := make([]ast.Decl, 0)
+func (h *HappyAst) AddDecl(location int, appends ...ast.Decl) {
+
+	tempDecls := make([]ast.Decl, 0)
+	switch location {
+	case HEAD:
 		for _, v := range appends {
 			tempDecls = append(tempDecls, v)
 		}
 		for _, val := range h.Ast.Decls {
 			tempDecls = append(tempDecls, val)
 		}
-		h.Ast.Decls = tempDecls
-		return
-	}
-	if location == TAIL {
-		tempDecls := make([]ast.Decl, 0)
+	case TAIL:
 		tempDecls = h.Ast.Decls
 		for _, v := range appends {
 			tempDecls = append(tempDecls, v)
 		}
-		h.Ast.Decls = tempDecls
-		return
+	default:
+		tempDecls = h.Ast.Decls
+		for _, v := range appends {
+			tempDecls = append(tempDecls, v)
+		}
 	}
+
+	h.Ast.Decls = tempDecls
 }
 
 /*
@@ -123,9 +153,19 @@ type svc interface {
 func (h *HappyAst) AddFieldOfFuncType(bmt *ast.FieldList, location int, field *ast.Field) {
 	tempFieldList := make([]*ast.Field, 0)
 
-	tempFieldList = append(tempFieldList, bmt.List[:location]...)
-	tempFieldList = append(tempFieldList, field)
-	tempFieldList = append(tempFieldList, bmt.List[location:]...)
+	switch location {
+	case HEAD:
+		tempFieldList = append(tempFieldList, field)
+		tempFieldList = append(tempFieldList, bmt.List[:]...)
+	case TAIL:
+		tempFieldList = append(tempFieldList, bmt.List[:]...)
+		tempFieldList = append(tempFieldList, field)
+	default:
+		tempFieldList = append(tempFieldList, bmt.List[:location]...)
+		tempFieldList = append(tempFieldList, field)
+		tempFieldList = append(tempFieldList, bmt.List[location:]...)
+	}
+
 	bmt.List = tempFieldList
 }
 
@@ -150,10 +190,14 @@ type PartnerSvcEndpoints struct {
 func (h *HappyAst) AddField(bmt *ast.FieldList, location int, field *ast.Field) {
 	tempFieldList := make([]*ast.Field, 0)
 
-	if location == -1 {
+	switch location {
+	case HEAD:
+		tempFieldList = append(tempFieldList, field)
+		tempFieldList = append(tempFieldList, bmt.List[:]...)
+	case TAIL:
 		tempFieldList = append(tempFieldList, bmt.List[:]...)
 		tempFieldList = append(tempFieldList, field)
-	} else {
+	default:
 		tempFieldList = append(tempFieldList, bmt.List[:location]...)
 		tempFieldList = append(tempFieldList, field)
 		tempFieldList = append(tempFieldList, bmt.List[location:]...)
