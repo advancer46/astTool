@@ -246,6 +246,14 @@ func NewBlockStmt(expStmt ...*ast.ExprStmt) *ast.BlockStmt {
 	return ret
 }
 
+func NewEmptyStmt(pos token.Pos) *ast.EmptyStmt {
+	ret := &ast.EmptyStmt{}
+	ret.Implicit = false
+	ret.Semicolon = pos
+
+	return ret
+}
+
 //new import spec
 func NewImportSpec(name string, path string) *ast.ImportSpec {
 	return &ast.ImportSpec{

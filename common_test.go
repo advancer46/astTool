@@ -89,3 +89,38 @@ type svc interface {
 		t.Errorf("\n got:%q,\n exp:%q", got, expect)
 	}
 }
+
+// todo
+func TestNewEmptyStmt(t *testing.T) {
+	srcode := `package miclient
+var  ppx int
+func testFoo(){}`
+	h := ParseFromCode(srcode)
+
+	wantedCode := `package miclient
+
+var ppx int
+
+func testFoo() { CALLfoo() }
+`
+	//2, add stmt into func body
+	searcher := Searcher{Root: h.Ast}
+	funcDecl := searcher.FindFuncDecl("testFoo")
+
+	//fpos := h.FindFuncDeclNode("testFoo")
+	//fnode := h.FindFuncDeclNode(fpos)
+	//fbody := (*fnode).(*ast.FuncDecl).Body
+
+	stmt := NewExpStmt(NewCallExpr(NewIdent("CALLfoo"), nil))
+	h.AddStmt(funcDecl.Body, TAIL, stmt)
+
+	pos := funcDecl.Pos()
+	emptystmt := NewEmptyStmt(pos)
+	h.AddStmt(funcDecl.Body, TAIL, emptystmt)
+
+	gotCode := h.Output(nil)
+	if gotCode != wantedCode {
+		t.Errorf("\n got: %q \n exp: %q", gotCode, wantedCode)
+	}
+
+}
