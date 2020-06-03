@@ -54,11 +54,15 @@ func (v *MyVisitor) Inspector(node ast.Node) bool {
 	case *ast.AssignStmt:
 		lhs := x.Lhs
 		for _, item := range lhs {
-			idt := item.(*ast.Ident)
-			if v.Name == idt.Name && v.Type == "AssignStmt" {
-				v.Result = append(v.Result, x)
-				return false
+			switch item.(type) {
+			case *ast.Ident:
+				idt := item.(*ast.Ident)
+				if v.Name == idt.Name && v.Type == "AssignStmt" {
+					v.Result = append(v.Result, x)
+					return false
+				}
 			}
+
 		}
 
 	case *ast.GenDecl:
