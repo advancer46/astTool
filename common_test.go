@@ -2,6 +2,7 @@ package astTool
 
 import (
 	"go/ast"
+	"go/token"
 	"testing"
 )
 
@@ -117,6 +118,35 @@ func testFoo() { CALLfoo() }
 	pos := funcDecl.Pos()
 	emptystmt := NewEmptyStmt(pos)
 	h.AddStmt(funcDecl.Body, TAIL, emptystmt)
+
+	gotCode := h.Output(nil)
+	if gotCode != wantedCode {
+		t.Errorf("\n got: %q \n exp: %q", gotCode, wantedCode)
+	}
+
+}
+
+func TestNewDeclStmt(t *testing.T) {
+	srcode := `package miclient
+var  ppx int
+func testFoo(){}`
+	h := ParseFromCode(srcode)
+
+	wantedCode := `package miclient
+
+var ppx int
+
+func testFoo() { var guessCreateEndpoint kitendpoint.Endpoint }
+`
+	//2, add stmt into func body
+	searcher := Searcher{Root: h.Ast}
+	funcDecl := searcher.FindFuncDecl("testFoo")
+
+	specs := make([]ast.Spec, 0)
+	specs = append(specs, NewValueSpec("guessCreateEndpoint", NewSelectExp(NewIdent("kitendpoint"), NewIdent("Endpoint"))))
+	genDecl := NewGenDecl(token.VAR, specs...)
+	declStmt := NewDeclStmt(genDecl)
+	h.AddStmt(funcDecl.Body, TAIL, declStmt)
 
 	gotCode := h.Output(nil)
 	if gotCode != wantedCode {

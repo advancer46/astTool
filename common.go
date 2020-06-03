@@ -221,6 +221,27 @@ func NewShortAssignStmt(lhs, rhs []ast.Expr) *ast.AssignStmt {
 	}
 }
 
+/*
+实例:
+package main
+func demo(){
+	x := 3
+}
+
+========>
+package main
+func demo(){
+	x := 3
+	var guessCreateEndpoint kitendpoint.Endpoint
+}
+*/
+
+func NewDeclStmt(decl ast.Decl) *ast.DeclStmt {
+	return &ast.DeclStmt{
+		Decl: decl,
+	}
+}
+
 func NewReturnStmt(results []ast.Expr) *ast.ReturnStmt {
 
 	return &ast.ReturnStmt{
