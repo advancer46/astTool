@@ -47,6 +47,8 @@ func (h *HappyAst) AddStmt(bmt *ast.BlockStmt, location int, stmt ast.Stmt) {
 		for _, v := range bmt.List {
 			tempStmtList = append(tempStmtList, v)
 		}
+		bmt.List = tempStmtList
+
 	case TAIL:
 		tempStmtList := make([]ast.Stmt, 0)
 		tempStmtList = append(tempStmtList, stmt)
@@ -56,6 +58,7 @@ func (h *HappyAst) AddStmt(bmt *ast.BlockStmt, location int, stmt ast.Stmt) {
 		tempStmtList = append(tempStmtList, bmt.List[:location]...)
 		tempStmtList = append(tempStmtList, stmt)
 		tempStmtList = append(tempStmtList, bmt.List[location:]...)
+		bmt.List = tempStmtList
 	}
 
 }
