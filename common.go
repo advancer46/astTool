@@ -1,5 +1,9 @@
 package astTool
 
+/*
+	helper function
+*/
+
 import (
 	"go/ast"
 	"go/token"

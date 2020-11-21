@@ -1,12 +1,14 @@
 package astTool
 
 import (
+	"fmt"
 	"go/ast"
 )
 
 /**
 提供方法查看或者搜素ast节点
 */
+
 type MyVisitor struct {
 	Result []ast.Node
 	Name   string
@@ -97,6 +99,10 @@ func (v *MyVisitor) Inspector(node ast.Node) bool {
 
 		}
 
+	case *ast.CommentGroup:
+		fmt.Printf("visitor:%v\n", x.Pos())
+		v.Result = append(v.Result, x)
+		//return false
 	default:
 
 	}
@@ -133,6 +139,49 @@ func (v Searcher) FindFuncDecl(name string) *ast.FuncDecl {
 	} else {
 		return nil
 	}
+}
+
+/*
+示例:
+package service
+
+import (
+	"context"
+
+	"svcGenerator/data/proto/v1"
+)
+
+type CommonSvcService interface {
+	IdentifyFetch(ctx context.Context, reqproto *commonproto.IdentifyFetchReqProto) (*commonproto.IdentifyFetchRespProto, error)
+	//{{template9}}
+}
+====>
+//{{template9}}
+*/
+func (v Searcher) FindCommentGroups() []*ast.CommentGroup {
+
+	commentGroups := make([]*ast.CommentGroup, 0)
+
+	switch x := v.Root.(type) {
+	case *ast.File: // 根节点是否为ast.File节点
+		commentGroups = append(commentGroups, x.Comments...)
+	default:
+		visitor := MyVisitor{Result: make([]ast.Node, 0), Name: "", Type: "CommentGroup"}
+		ast.Inspect(v.Root, visitor.Inspector)
+		if len(visitor.Result) > 0 {
+			for _, v := range visitor.Result {
+				commentGroups = append(commentGroups, &ast.CommentGroup{
+					List: v.(*ast.CommentGroup).List,
+				})
+			}
+			return commentGroups
+		} else {
+			return nil
+		}
+	}
+
+	return commentGroups
+
 }
 
 func (v Searcher) FindValueSpec(name string) *ast.ValueSpec {

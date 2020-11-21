@@ -1,8 +1,10 @@
 package astTool
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
+	"log"
 	"testing"
 )
 
@@ -65,8 +67,8 @@ func testFoo() { CALLfoo() }
 `
 	//2, add stmt into func body
 	fpos := h.FindFuncDeclNode("testFoo")
-	fnode := h.FindNodeByPos(fpos)
-	fbody := (*fnode).(*ast.FuncDecl).Body
+	fnode := h.NodeByPos(fpos)
+	fbody := fnode.(*ast.FuncDecl).Body
 
 	stmt := NewExpStmt(NewCallExpr(NewIdent("CALLfoo"), nil))
 	h.AddStmt(fbody, TAIL, stmt)
@@ -78,29 +80,27 @@ func testFoo() { CALLfoo() }
 }
 
 func TestHappyAst_ReplaceNode(t *testing.T) {
-	srcode := `package miclient
-type Microservice struct {
-ActivityHost string ` + "`" + `json:"activity_service_host"` + "`" + `
-}`
-	caseCode := `package miclient
+	var input = `package miclient
+func testFoo() {}
+`
+	var expect = `package miclient
 
-type Microservice struct {
-	ActivityHost string ` + "`" + `json:"activity_service_host"` + "`" + `
-	BrandHost    string ` + "`" + `json:"brandcustomer_service_host"` + "`" + `
+func testFoo2() {
 }
 `
-	h := ParseFromCode(srcode)
+	h := ParseFromCode(input)
+	pos := h.FindFuncDeclNode("testFoo")
 
-	tag := NewBasicLit(token.STRING, "`json:\"brandcustomer_service_host\"`")
-	field := NewField([]string{"BrandHost"}, NewIdent("string"), ExprTypeIdent, tag)
-	gpos := h.FindStructDeclNode("Microservice")
-	gnode := h.FindNodeByPos(gpos)
-	structNode := (*gnode).(*ast.TypeSpec).Type.(*ast.StructType)
-	structNode.Fields.List = append(structNode.Fields.List, field)
-	h.ReplaceNode(gpos, *gnode)
-	updatedCode := h.Output(nil)
-	if updatedCode != caseCode {
-		t.Errorf("got \n%q\nwanted \n%q", updatedCode, caseCode)
+	newNode := NewFuncDecl("testFoo2", NewBlockStmt(), nil, nil, nil)
+
+	err := h.ReplaceNode(pos, newNode)
+	if err != nil {
+		log.Print(err.Error())
+	}
+
+	got := h.Output(nil)
+	if got != expect {
+		t.Errorf("got \n%q\nwanted \n%q", got, expect)
 	}
 }
 
@@ -258,4 +258,56 @@ type PartnerSvcEndpoints struct {
 	if got != expect {
 		t.Errorf("\n got:%q, \n exp:%q", got, expect)
 	}
+}
+
+// todo 测试未通过
+func TestHappyAst_FreshPosInfoOfCommentGroup(t *testing.T) {
+	var input = `package miclient
+
+// comment 1
+type PartnerSvcEndpoints struct {
+
+	// comment 2
+	modelFetchEndpoint kitendpoint.Endpoint
+
+	// comment 3	
+
+}`
+	var expect = `package miclient
+
+type PartnerSvcEndpoints struct {
+	modelFetchEndpoint kitendpoint.Endpoint
+	gameFetchEndpoint  kitendpoint.Endpoint
+}
+`
+	_ = expect
+
+	h := ParseFromCode(input)
+
+	// fresh position info of comment group
+	err := h.FreshPosInfoOfCommentGroup()
+	if err != nil {
+		log.Print(err.Error())
+	}
+
+	// 更新节点
+	searcher := Searcher{Root: h.Ast}
+	declName := "PartnerSvcEndpoints"
+	resultNode := searcher.FindTypeDecl(declName)
+	if resultNode == nil {
+		t.Logf("can not find typeDecl(%s)", declName)
+	}
+	typeSpec := resultNode.Specs[0].(*ast.TypeSpec)
+	interfaceType := typeSpec.Type.(*ast.StructType)
+	fieldList := interfaceType.Fields
+	_ = fieldList
+
+	// add
+	selectExp := NewSelectExp(NewIdent("kitendpoint"), NewIdent("Endpoint"))
+	paramField := NewField([]string{"gameFetchEndpoint"}, selectExp, ExprTypeSelectorExpr, nil)
+
+	h.AddField(fieldList, 1, paramField)
+
+	s := h.Output(nil)
+	fmt.Print(s)
 }

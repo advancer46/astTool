@@ -1,5 +1,9 @@
 package astTool
 
+/*
+	inspecting node
+*/
+
 import (
 	"bytes"
 	"fmt"
@@ -28,25 +32,26 @@ func (h HappyAst) Position(tp token.Pos) token.Position {
 	return h.FileSet.PositionFor(tp, true)
 }
 
-func (h HappyAst) FindNodeByPos(pos token.Pos) (ret *ast.Node) {
-	if pos == token.NoPos {
-		return nil
-	}
-	ast.Inspect(h.Ast, func(node ast.Node) bool {
-		switch node.(type) {
-		case ast.Node:
-			if !node.Pos().IsValid() {
-				return true
-			}
-			if node.Pos() == pos {
-				ret = &node
-				return false
-			}
-		}
-		return true
-	})
-	return ret
-}
+//
+//func (h HappyAst) FindNodeByPos(pos token.Pos) (ret *ast.Node) {
+//	if pos == token.NoPos {
+//		return nil
+//	}
+//	ast.Inspect(h.Ast, func(node ast.Node) bool {
+//		switch node.(type) {
+//		case ast.Node:
+//			if !node.Pos().IsValid() {
+//				return true
+//			}
+//			if node.Pos() == pos {
+//				ret = &node
+//				return false
+//			}
+//		}
+//		return true
+//	})
+//	return ret
+//}
 
 // find function by name,
 // return token.Pos
@@ -203,6 +208,9 @@ func (h HappyAst) Output(printConfig *printer.Config) string {
 }
 
 // print HappyAst into string
+// 以下节点不支持打印：
+// 		ast.CommentGroup
+// 		ast.Comment
 func (h HappyAst) OutputNode(node interface{}) string {
 	var buf bytes.Buffer
 	printConfig := &printer.Config{Mode: printer.TabIndent, Tabwidth: 4}

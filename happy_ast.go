@@ -12,9 +12,7 @@ const (
 	TYPE_BASICLIT  = "BASICLIT"
 	TYPE_TYPESPEC  = "TYPESPEC"
 	TYPE_VALUESPEC = "VALUESPEC"
-)
 
-const (
 	KIND_VAR    = "var"    // Ident in Ident
 	KIND_TYPE   = "type"   // Ident in TypeSpec
 	KIND_STRING = "STRING" //basiclit
@@ -23,25 +21,11 @@ const (
 type HappyAst struct {
 	FileSet *token.FileSet //file info
 	Ast     *ast.File      //collection of ast.Node
-	//HappyAst *ast.File		//collection of updated ast.Node
 }
 
-func DemoInspect(codeFile string) {
-	srcode := `package miclient
+func DemoInspect(srcode string) {
 
-var (
-	commonClientConn              *grpc.ClientConn
-	xxClientConn              *grpc.ClientConn
-)
-func RegisterMicroService() {
-	//实例化common服务连接对象
-	registerCommonClientConn()
-}
-`
 	h := ParseFromCode(srcode)
-	if codeFile != "" {
-		h = ParseFromFile(codeFile)
-	}
 
 	h.Print()
 	//h.Visit()
@@ -62,10 +46,10 @@ ActivityHost           string ` + "`" + `json:"activity_service_host"` + "`" + `
 	tag := NewBasicLit(token.STRING, "`json:\"brandcustomer_service_host\"`")
 	field := NewField([]string{"BrandHost"}, NewIdent("string"), ExprTypeIdent, tag)
 	gpos := h.FindStructDeclNode("Microservice")
-	gnode := h.FindNodeByPos(gpos)
-	structNode := (*gnode).(*ast.TypeSpec).Type.(*ast.StructType)
+	gnode := h.NodeByPos(gpos)
+	structNode := gnode.(*ast.TypeSpec).Type.(*ast.StructType)
 	structNode.Fields.List = append(structNode.Fields.List, field)
-	h.ReplaceNode(gpos, *gnode)
+	h.ReplaceNode(gpos, gnode)
 	fmt.Println(h.Output(nil))
 }
 

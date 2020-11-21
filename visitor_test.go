@@ -242,9 +242,6 @@ func NewGRPCEndpoint(client kitconsul.Client, guesssvcport int) (guessendpoint.G
 		log.Printf("func decl(%s) not exsit", funcDeclName)
 		return
 	}
-	//funcBodyNode := funcDeclNode.Body
-	//returnStmtNode := funcBodyNode.List[0].(*ast.ReturnStmt)
-	//compLitNode := returnStmtNode.Results[0].(*ast.CompositeLit)
 
 	assignStmtSearcher := Searcher{Root: funcDeclNode.Body}
 	resultNode := assignStmtSearcher.FindAssignStmt("modelFetchFactory")
@@ -255,5 +252,46 @@ func NewGRPCEndpoint(client kitconsul.Client, guesssvcport int) (guessendpoint.G
 		}
 	} else {
 		t.Logf("got nil,expect %q", expect)
+	}
+}
+
+func TestSearcher_FindCommentGroup(t *testing.T) {
+	var input = `package service
+
+import (
+	"context"
+
+	"svcGenerator/data/proto/v1"
+)
+
+//{{template1}}
+type CommonSvcService interface {
+	//{{template2}}
+	IdentifyFetch(ctx context.Context, reqproto *commonproto.IdentifyFetchReqProto) (*commonproto.IdentifyFetchRespProto, error)
+
+	//{{template9}}
+
+}
+`
+	var expect = `{{template1}}
+{{template2}}
+{{template9}}
+`
+
+	h := ParseFromCode(input)
+	searcher := Searcher{Root: h.Ast}
+	commentGroups := searcher.FindCommentGroups()
+	if len(commentGroups) <= 0 {
+		log.Printf("commentGroup not exsit")
+		return
+	}
+
+	got := ""
+	for _, commentGroup := range commentGroups {
+		got += commentGroup.Text()
+	}
+
+	if got != expect {
+		t.Errorf("\n got %q, \n exp %q", got, expect)
 	}
 }
