@@ -510,15 +510,21 @@ func (h *HappyAst) FreshPosInfoOfCommentGroup() error {
 	commentGroups := searcher.FindCommentGroups()
 
 	for _, commentGroup := range commentGroups {
+
 		for _, comment := range commentGroup.List {
-			err := h.ReplaceNode(comment.Pos(), &ast.Comment{
+
+			newCommentNode := &ast.Comment{
 				Slash: token.NoPos,
 				Text:  comment.Text,
-			})
+			}
+
+			err := h.ReplaceNode(comment.Pos(), newCommentNode)
 			if err != nil {
 				log.Printf("err :%s[FreshPosInfoOfCommentGroup %s]", err.Error(), comment.Text)
 			}
+
 		}
 	}
+
 	return nil
 }

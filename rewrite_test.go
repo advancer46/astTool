@@ -81,17 +81,30 @@ func testFoo() { CALLfoo() }
 
 func TestHappyAst_ReplaceNode(t *testing.T) {
 	var input = `package miclient
+// comment1
 func testFoo() {}
 `
 	var expect = `package miclient
 
-func testFoo2() {
-}
+// comment1
+func testFoo2() {}
 `
 	h := ParseFromCode(input)
-	pos := h.FindFuncDeclNode("testFoo")
 
-	newNode := NewFuncDecl("testFoo2", NewBlockStmt(), nil, nil, nil)
+	searcher := Searcher{Root: h.Ast}
+
+	funcNode := searcher.FindFuncDecl("testFoo")
+	pos := funcNode.Pos()
+
+	newNode := &ast.FuncDecl{
+		Doc:  funcNode.Doc,
+		Recv: funcNode.Recv,
+		Name: funcNode.Name,
+		Type: funcNode.Type,
+		Body: funcNode.Body,
+	}
+
+	funcNode.Name.Name = "testFoo2"
 
 	err := h.ReplaceNode(pos, newNode)
 	if err != nil {
@@ -284,12 +297,6 @@ type PartnerSvcEndpoints struct {
 
 	h := ParseFromCode(input)
 
-	// fresh position info of comment group
-	err := h.FreshPosInfoOfCommentGroup()
-	if err != nil {
-		log.Print(err.Error())
-	}
-
 	// 更新节点
 	searcher := Searcher{Root: h.Ast}
 	declName := "PartnerSvcEndpoints"
@@ -307,6 +314,12 @@ type PartnerSvcEndpoints struct {
 	paramField := NewField([]string{"gameFetchEndpoint"}, selectExp, ExprTypeSelectorExpr, nil)
 
 	h.AddField(fieldList, 1, paramField)
+
+	// fresh position info of comment group
+	err := h.FreshPosInfoOfCommentGroup()
+	if err != nil {
+		log.Print(err.Error())
+	}
 
 	s := h.Output(nil)
 	fmt.Print(s)

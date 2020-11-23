@@ -160,10 +160,6 @@ func NewFieldList(fields ...*ast.Field) *ast.FieldList {
 
 //new funcDecl
 func NewFuncDecl(funcName string, blkStmt *ast.BlockStmt, recv, params *ast.FieldList, commentgroup *ast.CommentGroup) *ast.FuncDecl {
-	//recvField := NewField([]string{"h"}, "Receive", true, nil)
-	//_ = recvField
-	//field := NewField([]string{"a", "b"}, "string", false, nil)
-	//commentgroup := NewCommentGroup(NewComment("// this is comment"))
 	return &ast.FuncDecl{
 		Name: &ast.Ident{Name: funcName},
 		Body: blkStmt,

@@ -50,22 +50,15 @@ ActivityHost           string ` + "`" + `json:"activity_service_host"` + "`" + `
 }
 
 func TestHappyAst_Print(t *testing.T) {
-	srcCode := `package service
+	srcCode := `package miclient
+// comment1
+func testFoo() {}
 
-import (
-	"context"
+//comment2
+func foo() {}
 
-	"svcGenerator/data/proto/v1"
-)
+//comment3
 
-//{{template1}}
-type CommonSvcService interface {
-	//{{template2}}
-	IdentifyFetch(ctx context.Context, reqproto *commonproto.IdentifyFetchReqProto) (*commonproto.IdentifyFetchRespProto, error)
-
-	//{{template9}}
-
-}
 `
 	h := ParseFromCode(srcCode)
 
